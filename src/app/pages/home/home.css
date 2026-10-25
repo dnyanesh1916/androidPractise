@@ -1,0 +1,514 @@
+:host {
+display: block;
+min-height: 100vh;
+font-family: Inter, "Segoe UI", Arial, sans-serif;
+color: #172554;
+}
+
+* {
+  box-sizing: border-box;
+  }
+
+.home-page {
+min-height: 100vh;
+overflow: hidden;
+background:
+radial-gradient(circle at 85% 40%, #e6efff 0, transparent 32%),
+#f8faff;
+padding: 0 8%;
+}
+
+/* Navigation */
+
+.navbar {
+height: 88px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+}
+
+.brand {
+display: flex;
+align-items: center;
+gap: 12px;
+text-decoration: none;
+color: #172554;
+font-size: 23px;
+font-weight: 800;
+}
+
+.brand-icon {
+display: grid;
+place-items: center;
+width: 42px;
+height: 42px;
+color: white;
+background: #2563eb;
+border-radius: 13px;
+box-shadow: 0 6px 16px #2563eb35;
+}
+
+.nav-register {
+text-decoration: none;
+color: #2563eb;
+font-weight: 700;
+padding: 12px 20px;
+border: 1px solid #dbe5ff;
+border-radius: 10px;
+transition: 0.2s;
+}
+
+.nav-register:hover {
+background: #eaf0ff;
+}
+
+/* Hero layout */
+
+.hero {
+min-height: calc(100vh - 150px);
+display: grid;
+grid-template-columns: 1fr 1fr;
+align-items: center;
+gap: 50px;
+padding: 45px 0 65px;
+}
+
+.hero-content {
+max-width: 550px;
+}
+
+.welcome-badge {
+display: inline-flex;
+align-items: center;
+gap: 9px;
+padding: 10px 15px;
+color: #2455b8;
+background: #eaf1ff;
+border-radius: 50px;
+font-size: 13px;
+font-weight: 700;
+}
+
+.status-dot,
+.footer-dot {
+width: 8px;
+height: 8px;
+background: #22c55e;
+border-radius: 50%;
+}
+
+.hero h1 {
+margin: 27px 0 20px;
+font-size: clamp(40px, 5vw, 65px);
+line-height: 1.12;
+letter-spacing: -2.5px;
+font-weight: 800;
+}
+
+.hero h1 span {
+color: #2563eb;
+}
+
+.hero-description {
+max-width: 450px;
+color: #64748b;
+font-size: 17px;
+line-height: 1.9;
+margin-bottom: 32px;
+}
+
+/* Buttons */
+
+.hero-actions {
+display: flex;
+align-items: center;
+gap: 15px;
+flex-wrap: wrap;
+}
+
+.primary-button,
+.secondary-button {
+min-height: 52px;
+padding: 0 22px;
+display: inline-flex;
+justify-content: center;
+align-items: center;
+gap: 15px;
+border-radius: 12px;
+font-weight: 700;
+text-decoration: none;
+transition: 0.2s;
+}
+
+.primary-button {
+color: white;
+background: #2563eb;
+box-shadow: 0 9px 22px #2563eb30;
+}
+
+.primary-button:hover {
+background: #1d4ed8;
+transform: translateY(-2px);
+}
+
+.arrow {
+font-size: 20px;
+}
+
+.secondary-button {
+color: #334155;
+background: white;
+border: 1px solid #dce5f5;
+}
+
+.secondary-button:hover {
+background: #eef4ff;
+}
+
+.trust-note {
+display: flex;
+align-items: center;
+gap: 9px;
+margin-top: 26px;
+color: #64748b;
+font-size: 13px;
+}
+
+.check-icon {
+display: grid;
+place-items: center;
+width: 21px;
+height: 21px;
+color: #15803d;
+background: #dcfce7;
+border-radius: 50%;
+font-weight: 800;
+}
+
+/* Illustration */
+
+.hero-visual {
+position: relative;
+display: flex;
+align-items: center;
+justify-content: center;
+min-height: 470px;
+}
+
+.circle {
+position: absolute;
+border-radius: 50%;
+}
+
+.circle-one {
+width: 390px;
+height: 390px;
+background: #e2ebff;
+}
+
+.circle-two {
+width: 300px;
+height: 300px;
+background: #d2e0ff;
+opacity: 0.6;
+}
+
+.attendance-card {
+position: relative;
+z-index: 1;
+width: min(100%, 390px);
+padding: 25px;
+background: white;
+border: 1px solid #edf1fa;
+border-radius: 24px;
+box-shadow: 0 25px 70px #1e3a8a18;
+}
+
+.card-header {
+display: flex;
+align-items: center;
+justify-content: space-between;
+}
+
+.card-label {
+margin: 0 0 8px;
+color: #94a3b8;
+font-size: 10px;
+font-weight: 800;
+letter-spacing: 1.2px;
+}
+
+.card-header h2 {
+margin: 0;
+font-size: 22px;
+}
+
+.calendar-icon {
+display: grid;
+place-items: center;
+width: 43px;
+height: 43px;
+color: #2563eb;
+background: #eff5ff;
+border-radius: 13px;
+font-size: 25px;
+}
+
+.illustration {
+position: relative;
+height: 210px;
+display: grid;
+place-items: center;
+margin: 15px 0;
+overflow: hidden;
+background: linear-gradient(145deg, #f3f7ff, #e6eeff);
+border-radius: 18px;
+}
+
+.illustration-circle {
+position: relative;
+width: 140px;
+height: 140px;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: flex-start;
+background: #c7d8ff;
+border-radius: 50%;
+overflow: hidden;
+}
+
+.person-head {
+z-index: 1;
+width: 48px;
+height: 48px;
+margin-top: 25px;
+background: #f0b58e;
+border: 5px solid #334b83;
+border-radius: 50%;
+}
+
+.person-body {
+width: 90px;
+height: 85px;
+margin-top: -2px;
+background: #2563eb;
+border-radius: 35px 35px 0 0;
+}
+
+.person-arm {
+position: absolute;
+width: 65px;
+height: 15px;
+top: 92px;
+right: 0;
+background: #f0b58e;
+border-radius: 15px;
+transform: rotate(-35deg);
+}
+
+.floating-check {
+position: absolute;
+right: 25px;
+top: 28px;
+width: 42px;
+height: 42px;
+display: grid;
+place-items: center;
+color: white;
+background: #22c55e;
+border: 4px solid white;
+border-radius: 50%;
+font-size: 20px;
+font-weight: 800;
+box-shadow: 0 5px 15px #22c55e30;
+}
+
+.attendance-status {
+display: flex;
+align-items: center;
+gap: 12px;
+padding: 15px;
+background: #f8fafc;
+border-radius: 14px;
+}
+
+.status-symbol {
+width: 40px;
+height: 40px;
+display: grid;
+place-items: center;
+color: #15803d;
+background: #dcfce7;
+border-radius: 12px;
+font-size: 20px;
+}
+
+.status-text {
+display: flex;
+flex-direction: column;
+gap: 5px;
+}
+
+.status-text strong {
+font-size: 13px;
+}
+
+.status-text span {
+color: #94a3b8;
+font-size: 11px;
+}
+
+.card-footer {
+display: flex;
+align-items: center;
+justify-content: space-between;
+margin-top: 20px;
+color: #94a3b8;
+font-size: 11px;
+}
+
+.floating-card {
+position: absolute;
+z-index: 2;
+right: -10px;
+bottom: 45px;
+display: flex;
+align-items: center;
+gap: 12px;
+padding: 15px 18px;
+background: white;
+border: 1px solid #edf1fa;
+border-radius: 16px;
+box-shadow: 0 12px 35px #1e3a8a15;
+}
+
+.floating-icon {
+display: grid;
+place-items: center;
+width: 42px;
+height: 42px;
+color: #2563eb;
+background: #eff5ff;
+border-radius: 12px;
+font-size: 25px;
+}
+
+.floating-card strong,
+.floating-card span {
+display: block;
+}
+
+.floating-card strong {
+margin-bottom: 5px;
+font-size: 12px;
+}
+
+.floating-card span {
+color: #94a3b8;
+font-size: 10px;
+}
+
+/* Footer */
+
+.home-footer {
+display: flex;
+justify-content: space-between;
+gap: 15px;
+padding: 20px 0;
+border-top: 1px solid #e8edf6;
+color: #94a3b8;
+font-size: 12px;
+}
+
+/* Responsive design */
+
+@media (max-width: 900px) {
+.home-page {
+padding: 0 5%;
+}
+
+.hero {
+grid-template-columns: 1fr;
+gap: 20px;
+padding-top: 45px;
+}
+
+.hero-content {
+max-width: 650px;
+}
+
+.hero-visual {
+min-height: 450px;
+}
+
+.floating-card {
+right: 0;
+}
+}
+
+@media (max-width: 480px) {
+.navbar {
+height: 75px;
+}
+
+.brand {
+font-size: 19px;
+}
+
+.brand-icon {
+width: 36px;
+height: 36px;
+}
+
+.nav-register {
+padding: 10px 13px;
+font-size: 13px;
+}
+
+.hero {
+padding-top: 35px;
+}
+
+.hero h1 {
+font-size: 43px;
+letter-spacing: -1.5px;
+}
+
+.hero-description {
+font-size: 15px;
+}
+
+.hero-visual {
+min-height: 390px;
+}
+
+.circle-one {
+width: 300px;
+height: 300px;
+}
+
+.circle-two {
+width: 230px;
+height: 230px;
+}
+
+.attendance-card {
+padding: 17px;
+}
+
+.illustration {
+height: 170px;
+}
+
+.floating-card {
+right: -3px;
+bottom: 10px;
+padding: 10px;
+}
+
+.home-footer {
+flex-direction: column;
+text-align: center;
+}
+}
