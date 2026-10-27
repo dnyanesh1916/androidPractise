@@ -75,7 +75,7 @@
     </p>
   </div>
 
-  <form class="register-form">
+  <form class="register-form" (ngSubmit)="submitForm()" #registerForm="ngForm">
 
     <div class="form-field">
       <label for="fullName">Full name</label>
@@ -87,6 +87,7 @@
         placeholder="Enter your full name"
         autocomplete="name"
         required
+        [(ngModel)]="form.fullName"
       >
     </div>
 
@@ -100,6 +101,7 @@
         placeholder="you@company.com"
         autocomplete="email"
         required
+        [(ngModel)]="form.email"
       >
     </div>
 
@@ -113,6 +115,7 @@
         placeholder="Create a password"
         autocomplete="new-password"
         required
+        [(ngModel)]="form.password"
       >
     </div>
 
@@ -126,6 +129,7 @@
         placeholder="Enter your password again"
         autocomplete="new-password"
         required
+        [(ngModel)]="form.confirmPassword"
       >
     </div>
 
@@ -134,8 +138,12 @@
       company's attendance policies.
     </div>
 
-    <button type="button" class="register-button">
-      Create Account
+    <div *ngIf="message" [ngClass]="isSuccess ? 'success-message' : 'error-message'">
+      {{ message }}
+    </div>
+
+    <button type="submit" class="register-button" [disabled]="isSubmitting">
+      {{ isSubmitting ? 'Creating...' : 'Create Account' }}
       <span>→</span>
     </button>
 
