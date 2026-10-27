@@ -51,9 +51,9 @@ export class Register {
       confirmPassword: this.form.confirmPassword
     };
 
-    console.log('Calling register API:', 'http://localhost:8080/api/register', payload);
+    const apiUrl = 'https://androidpractisebackend-1.onrender.com/api/register';
 
-    this.http.post<{ success: boolean; message: string; userId: number | null }>('http://localhost:8080/api/register', payload)
+    this.http.post<{ success: boolean; message: string; userId: number | null }>(apiUrl, payload)
       .subscribe({
         next: (response) => {
           this.isSubmitting = false;
