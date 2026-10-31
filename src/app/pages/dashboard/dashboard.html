@@ -1,0 +1,73 @@
+<div class="dashboard-shell">
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">Welcome</p>
+      <h2>{{ user?.fullName || 'User' }}</h2>
+    </div>
+    <button class="ghost-button" (click)="logout()">Logout</button>
+  </header>
+
+  <section class="status-card">
+    <div>
+      <p class="eyebrow">Current status</p>
+      <h3>{{ attendanceStatus }}</h3>
+    </div>
+    <span class="status-pill">Live</span>
+  </section>
+
+  <section class="location-card">
+    <div class="card-header-row">
+      <span>Location</span>
+      <button class="link-button" (click)="requestLocation()">Allow location</button>
+    </div>
+    <p>{{ locationText }}</p>
+  </section>
+
+  <section class="face-card">
+    <div class="camera-controls">
+      <button type="button" class="primary-button" (click)="openCamera()" [disabled]="isCameraLoading">
+        {{ isCameraLoading ? 'Opening camera...' : (isCameraOpen ? 'Camera is live' : 'Take live photo') }}
+      </button>
+      <button *ngIf="isCameraOpen" type="button" class="secondary-button" (click)="capturePhoto()">
+        Capture photo
+      </button>
+      <button *ngIf="isCameraOpen" type="button" class="ghost-button" (click)="closeCamera()">
+        Close
+      </button>
+    </div>
+
+    <video *ngIf="isCameraOpen" #cameraVideo autoplay playsinline muted></video>
+
+    <img *ngIf="faceData && !isCameraOpen" [src]="faceData" alt="Captured face preview" class="face-preview" />
+
+    <label class="upload-box" style="margin-top: 12px;">
+      <span>Use uploaded photo instead</span>
+      <input type="file" accept="image/*" capture="user" (change)="onFaceSelected($event)" />
+    </label>
+  </section>
+
+  <div class="action-grid">
+    <button class="primary-button" (click)="markAttendance('CHECK_IN')" [disabled]="isSubmitting">
+      {{ isSubmitting ? 'Processing...' : 'Check In' }}
+    </button>
+    <button class="secondary-button" (click)="markAttendance('CHECK_OUT')" [disabled]="isSubmitting">
+      Check Out
+    </button>
+  </div>
+
+  <section class="entries-card">
+    <h3>My attendance</h3>
+    <div *ngIf="isLoading" class="empty-state">Loading...</div>
+    <div *ngIf="!isLoading && todayEntries.length === 0" class="empty-state">No attendance records yet.</div>
+
+    <div class="entry-list" *ngIf="todayEntries.length > 0">
+      <div class="entry-item" *ngFor="let entry of todayEntries">
+        <div>
+          <strong>{{ entry.status }}</strong>
+          <small>{{ entry.checkInTime | date: 'medium' }}</small>
+        </div>
+        <span>{{ entry.locationVerified ? 'Location verified' : 'Location check pending' }}</span>
+      </div>
+    </div>
+  </section>
+</div>

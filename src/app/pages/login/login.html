@@ -1,0 +1,36 @@
+<div class="auth-shell">
+  <div class="auth-card">
+    <div class="brand-row">
+      <span class="brand-icon">A</span>
+      <span>AttendEase</span>
+    </div>
+
+    <h1>Welcome back</h1>
+    <p class="subtitle">Sign in to mark attendance and manage your day.</p>
+
+    <form class="auth-form" (ngSubmit)="submitForm()" #loginForm="ngForm">
+      <label>
+        <span>Email</span>
+        <input type="email" name="email" [(ngModel)]="form.email" placeholder="you@company.com" required />
+      </label>
+
+      <label>
+        <span>Password</span>
+        <input type="password" name="password" [(ngModel)]="form.password" placeholder="••••••••" required />
+      </label>
+
+      <div *ngIf="message" [class.success-message]="isSuccess" [class.error-message]="!isSuccess">
+        {{ message }}
+      </div>
+
+      <button type="submit" [disabled]="isSubmitting">
+        {{ isSubmitting ? 'Signing in...' : 'Login' }}
+      </button>
+    </form>
+
+    <div class="switch-link">
+      Don’t have an account?
+      <a routerLink="/register">Create account</a>
+    </div>
+  </div>
+</div>

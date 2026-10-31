@@ -1,0 +1,60 @@
+<div class="admin-shell">
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">Admin panel</p>
+      <h2>Attendance overview</h2>
+    </div>
+    <button class="ghost-button" (click)="logout()">Logout</button>
+  </header>
+
+  <section class="metrics-grid">
+    <div class="metric-card">
+      <span>Total users</span>
+      <strong>{{ summary.totalUsers }}</strong>
+    </div>
+    <div class="metric-card">
+      <span>Present</span>
+      <strong>{{ summary.totalPresent }}</strong>
+    </div>
+    <div class="metric-card">
+      <span>Late</span>
+      <strong>{{ summary.totalLate }}</strong>
+    </div>
+    <div class="metric-card">
+      <span>Absent</span>
+      <strong>{{ summary.totalAbsent }}</strong>
+    </div>
+  </section>
+
+  <section class="panel-card">
+    <h3>User roster</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of users">
+            <td>{{ user.fullName }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.role }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel-card">
+    <h3>Activity log</h3>
+    <ul class="activity-list">
+      <li *ngFor="let item of activity">
+        <strong>{{ item.action }}</strong>
+        <span>{{ item.details }}</span>
+      </li>
+    </ul>
+  </section>
+</div>
