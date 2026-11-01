@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -24,24 +24,30 @@ export class Register {
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
+
+  private showAlert(message: string, isSuccess: boolean): void {
+    this.message = message;
+    this.isSuccess = isSuccess;
+    this.cdr.detectChanges();
+  }
 
   submitForm() {
     if (this.isSubmitting) {
       return;
     }
 
-    this.message = '';
-    this.isSuccess = false;
+    this.showAlert('', false);
 
     if (!this.form.fullName || !this.form.email || !this.form.password || !this.form.confirmPassword) {
-      this.message = 'Please fill in all fields.';
+      this.showAlert('Please fill in all fields.', false);
       return;
     }
 
     if (this.form.password !== this.form.confirmPassword) {
-      this.message = 'Password and confirm password must match.';
+      this.showAlert('Password and confirm password must match.', false);
       return;
     }
 
@@ -56,11 +62,13 @@ export class Register {
 
     this.authService.register(payload).subscribe({
       next: (response) => {
-        this.isSubmitting = false;
-        this.isSuccess = response?.success ?? true;
-        this.message = response?.message || 'Registration successful.';
+        const backendMessage = response?.message || 'Registration successful.';
+        const isSuccess = response?.success ?? true;
 
-        if (this.isSuccess) {
+        this.isSubmitting = false;
+        this.showAlert(backendMessage, isSuccess);
+
+        if (isSuccess) {
           this.form = {
             fullName: '',
             email: '',
@@ -68,13 +76,14 @@ export class Register {
             confirmPassword: ''
           };
 
-          this.router.navigateByUrl('/login');
+          setTimeout(() => {
+            this.router.navigateByUrl('/login');
+          }, 1200);
         }
       },
       error: (error) => {
         this.isSubmitting = false;
-        this.isSuccess = false;
-        this.message = error?.error?.message || 'Registration failed. Please try again.';
+        this.showAlert(error?.error?.message || error?.message || 'Registration failed. Please try again.', false);
       }
     });
   }

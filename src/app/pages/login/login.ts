@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -22,8 +22,22 @@ export class Login {
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
+
+  private showAlert(message: string, isSuccess: boolean): void {
+    this.message = message;
+    this.isSuccess = isSuccess;
+    this.cdr.detectChanges();
+  }
+
+  ngOnInit(): void {
+    const state = (typeof history !== 'undefined' ? (history.state ?? {}) : {}) as { message?: string; isSuccess?: boolean };
+    if (state.message) {
+      this.showAlert(state.message, Boolean(state.isSuccess));
+    }
+  }
 
   submitForm(): void {
     console.log('[LoginPage] submitForm() called', this.form);
@@ -34,8 +48,7 @@ export class Login {
     }
 
     if (!this.form.email || !this.form.password) {
-      this.message = 'Please enter email and password.';
-      this.isSuccess = false;
+      this.showAlert('Please enter email and password.', false);
       return;
     }
 
@@ -44,10 +57,13 @@ export class Login {
 
     this.authService.login(this.form).subscribe({
       next: (response) => {
+        const backendMessage = response?.message || 'Login successful.';
+        const isSuccess = Boolean(response?.message && response.message.toLowerCase().includes('success'));
+
         this.isSubmitting = false;
-        if (response?.message && response.message.toLowerCase().includes('success')) {
-          this.isSuccess = true;
-          this.message = response.message;
+        this.showAlert(backendMessage, isSuccess);
+
+        if (isSuccess) {
           this.authService.saveUser({
             userId: response.userId,
             fullName: response.fullName,
@@ -56,17 +72,15 @@ export class Login {
           });
 
           const redirectPath = response.role === 'ADMIN' ? '/admin' : '/dashboard';
-          this.router.navigateByUrl(redirectPath);
+          setTimeout(() => {
+            this.router.navigateByUrl(redirectPath);
+          }, 1200);
           return;
         }
-
-        this.isSuccess = false;
-        this.message = response?.message || 'Login failed.';
       },
       error: (error) => {
         this.isSubmitting = false;
-        this.isSuccess = false;
-        this.message = error?.error?.message || 'Login failed. Please try again.';
+        this.showAlert(error?.error?.message || error?.message || 'Login failed. Please try again.', false);
       }
     });
   }

@@ -7,6 +7,10 @@
     <button class="ghost-button" (click)="logout()">Logout</button>
   </header>
 
+  <div *ngIf="message" class="alert-banner" [class.success-message]="isSuccess" [class.error-message]="!isSuccess">
+    {{ message }}
+  </div>
+
   <section class="status-card">
     <div>
       <p class="eyebrow">Current status</p>
