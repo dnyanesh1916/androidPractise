@@ -1,12 +1,12 @@
 :host {
   display: block;
   min-height: 100vh;
-  background: #f8fbff;
-  padding: 20px 14px 32px;
+  background: linear-gradient(135deg, #eff6ff, #f8fafc 60%, #e2e8f0);
+  padding: 24px 16px;
 }
 
 .dashboard-shell {
-  max-width: 520px;
+  max-width: 420px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -17,7 +17,8 @@
 .status-card,
 .location-card,
 .face-card,
-.entries-card {
+.entries-card,
+.user-card {
   background: white;
   border: 1px solid #e2ebff;
   border-radius: 20px;
@@ -78,11 +79,89 @@ h2, h3 {
   color: #991b1b;
 }
 
-.status-card {
+.status-card,
+.user-card {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 20px 18px;
+}
+
+.user-summary-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+}
+
+.user-summary-row p {
+  margin: 6px 0 0;
+  color: #475569;
+}
+
+.user-avatar,
+.mini-avatar {
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid #dbeafe;
+  background: #e0f2fe;
+}
+
+.user-avatar {
+  width: 64px;
+  height: 64px;
+}
+
+.default-avatar,
+.default-mini-avatar {
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  color: #1d4ed8;
+}
+
+.default-avatar {
+  width: 64px;
+  height: 64px;
+}
+
+.mini-avatar {
+  width: 42px;
+  height: 42px;
+}
+
+.default-mini-avatar {
+  width: 42px;
+  height: 42px;
+  font-size: 0.8rem;
+}
+
+.user-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.user-list-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.user-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.user-meta span,
+.user-meta small {
+  color: #64748b;
 }
 
 .status-pill {

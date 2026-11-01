@@ -68,7 +68,8 @@ export class Login {
             userId: response.userId,
             fullName: response.fullName,
             email: response.email,
-            role: response.role
+            role: response.role,
+            profileImage: response.profileImage
           });
 
           const redirectPath = response.role === 'ADMIN' ? '/admin' : '/dashboard';

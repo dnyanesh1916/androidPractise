@@ -29,7 +29,13 @@ export class AuthService {
     if (typeof window === 'undefined' || !('localStorage' in window)) {
       return;
     }
-    localStorage.setItem('attendease-user', JSON.stringify(user));
+
+    const safeUser = {
+      ...user,
+      profileImage: user?.profileImage || ''
+    };
+
+    localStorage.setItem('attendease-user', JSON.stringify(safeUser));
   }
 
   getCurrentUser(): any {
