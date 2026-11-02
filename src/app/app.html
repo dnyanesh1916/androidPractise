@@ -1,8 +1,8 @@
-<main class="page-content">
+<main class="page-content" [class.admin-layout]="isAdminRoute">
 	<router-outlet></router-outlet>
 </main>
 
-<nav class="bottom-nav" aria-label="Main navigation">
+<nav class="bottom-nav" [class.admin-hidden]="isAdminRoute" aria-label="Main navigation">
 	<a routerLink="/register" routerLinkActive="active" ariaCurrentWhenActive="page">
 		<span class="nav-icon" aria-hidden="true">+</span>
 		<span>Register</span>

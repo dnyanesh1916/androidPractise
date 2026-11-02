@@ -21,8 +21,7 @@ export class AuthService {
   }
 
   login(payload: any): Observable<any> {
-    console.log('[AuthService] login() called with payload:', payload);
-    return this.http.post(`${API_BASE_URL}/api/auth/login`, payload);
+    return this.http.post(`${API_BASE_URL}/api/auth/login`, payload, { withCredentials: true });
   }
 
   saveUser(user: any): void {
@@ -51,5 +50,8 @@ export class AuthService {
       return;
     }
     localStorage.removeItem('attendease-user');
+    this.http.post(`${API_BASE_URL}/api/auth/logout`, {}, { withCredentials: true }).subscribe({
+      error: () => undefined
+    });
   }
 }

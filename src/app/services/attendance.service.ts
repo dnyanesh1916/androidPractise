@@ -7,25 +7,62 @@ import { API_BASE_URL } from './auth.service';
   providedIn: 'root'
 })
 export class AttendanceService {
+  private readonly sessionOptions = { withCredentials: true };
+
   constructor(private http: HttpClient) {}
 
   markAttendance(payload: any): Observable<any> {
-    return this.http.post(`${API_BASE_URL}/api/attendance/mark`, payload);
+    return this.http.post(`${API_BASE_URL}/api/attendance/mark`, payload, this.sessionOptions);
   }
 
   getUserAttendance(userId: number): Observable<any> {
-    return this.http.get(`${API_BASE_URL}/api/attendance/user/${userId}`);
+    return this.http.get(`${API_BASE_URL}/api/attendance/user/${userId}`, this.sessionOptions);
   }
 
   getUsers(): Observable<any> {
-    return this.http.get(`${API_BASE_URL}/api/attendance/users`);
+    return this.http.get(`${API_BASE_URL}/api/attendance/users`, this.sessionOptions);
   }
 
   getAdminSummary(): Observable<any> {
-    return this.http.get(`${API_BASE_URL}/api/admin/summary`);
+    return this.http.get(`${API_BASE_URL}/api/admin/summary`, this.sessionOptions);
   }
 
   getAdminActivity(): Observable<any> {
-    return this.http.get(`${API_BASE_URL}/api/admin/activity`);
+    return this.http.get(`${API_BASE_URL}/api/admin/activity`, this.sessionOptions);
+  }
+
+  getAdminUsers(year: number, month: number): Observable<any> {
+    return this.http.get(`${API_BASE_URL}/api/admin/users`, {
+      ...this.sessionOptions,
+      params: { year, month }
+    });
+  }
+
+  updateUserSalary(userId: number, monthlySalary: number): Observable<any> {
+    return this.http.patch(`${API_BASE_URL}/api/admin/users/${userId}/salary`, { monthlySalary }, this.sessionOptions);
+  }
+
+  approveUser(userId: number, source: string, monthlySalary: number | null): Observable<any> {
+    const body = monthlySalary === null ? {} : { monthlySalary };
+    return this.http.patch(`${API_BASE_URL}/api/admin/users/${userId}/approve`, body, {
+      ...this.sessionOptions,
+      params: { source }
+    });
+  }
+
+  getLocations(): Observable<any> {
+    return this.http.get(`${API_BASE_URL}/api/admin/locations`, this.sessionOptions);
+  }
+
+  createLocation(payload: any): Observable<any> {
+    return this.http.post(`${API_BASE_URL}/api/admin/locations`, payload, this.sessionOptions);
+  }
+
+  updateLocation(locationId: number, payload: any): Observable<any> {
+    return this.http.put(`${API_BASE_URL}/api/admin/locations/${locationId}`, payload, this.sessionOptions);
+  }
+
+  deactivateLocation(locationId: number): Observable<any> {
+    return this.http.delete(`${API_BASE_URL}/api/admin/locations/${locationId}`, this.sessionOptions);
   }
 }

@@ -1,60 +1,240 @@
 <div class="admin-shell">
-  <header class="topbar">
-    <div>
-      <p class="eyebrow">Admin panel</p>
-      <h2>Attendance overview</h2>
+  <header class="admin-header">
+    <div class="admin-brand">
+      <span class="brand-mark">A</span>
+      <div>
+        <p class="eyebrow">AttendEase administration</p>
+        <h1>Control center</h1>
+      </div>
     </div>
-    <button class="ghost-button" (click)="logout()">Logout</button>
+    <div class="header-user">
+      <div class="admin-identity">
+        <strong>{{ user?.fullName || 'Administrator' }}</strong>
+        <span>{{ user?.email }}</span>
+      </div>
+      <button class="logout-button" type="button" (click)="logout()">Sign out</button>
+    </div>
   </header>
 
-  <section class="metrics-grid">
-    <div class="metric-card">
-      <span>Total users</span>
-      <strong>{{ summary.totalUsers }}</strong>
-    </div>
-    <div class="metric-card">
-      <span>Present</span>
-      <strong>{{ summary.totalPresent }}</strong>
-    </div>
-    <div class="metric-card">
-      <span>Late</span>
-      <strong>{{ summary.totalLate }}</strong>
-    </div>
-    <div class="metric-card">
-      <span>Absent</span>
-      <strong>{{ summary.totalAbsent }}</strong>
-    </div>
-  </section>
+  <div *ngIf="message" class="notice" [class.notice-error]="isError" [class.notice-success]="!isError" role="status">
+    {{ message }}
+  </div>
 
-  <section class="panel-card">
-    <h3>User roster</h3>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Role</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let user of users">
-            <td>{{ user.fullName }}</td>
-            <td>{{ user.email }}</td>
-            <td>{{ user.role }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
+  <nav class="section-tabs" aria-label="Admin sections">
+    <button type="button" [class.selected]="activeSection === 'users'" (click)="showSection('users')">
+      User approvals <span class="tab-count">{{ users.length }}</span>
+    </button>
+    <button type="button" [class.selected]="activeSection === 'locations'" (click)="showSection('locations')">
+      Attendance locations <span class="tab-count">{{ locations.length }}</span>
+    </button>
+  </nav>
 
-  <section class="panel-card">
-    <h3>Activity log</h3>
-    <ul class="activity-list">
-      <li *ngFor="let item of activity">
-        <strong>{{ item.action }}</strong>
-        <span>{{ item.details }}</span>
-      </li>
-    </ul>
-  </section>
+  <main *ngIf="activeSection === 'users'" class="section-content">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">People and access</p>
+        <h2>Registered users</h2>
+        <p>Review submitted profiles and approve access to attendance.</p>
+      </div>
+      <div class="heading-tools">
+        <label class="month-filter">
+          <span>Attendance month</span>
+          <input type="month" name="attendanceMonth" [(ngModel)]="selectedMonth" (ngModelChange)="onMonthChanged()" />
+        </label>
+        <button type="button" class="refresh-button" (click)="loadData()">Refresh data</button>
+      </div>
+    </div>
+
+    <section class="metrics-grid" aria-label="User overview">
+      <div class="metric-card"><span>Total accounts</span><strong>{{ summary.totalUsers || users.length }}</strong></div>
+      <div class="metric-card metric-pending"><span>Awaiting approval</span><strong>{{ pendingUsers }}</strong></div>
+      <div class="metric-card"><span>Present now</span><strong>{{ summary.totalPresent }}</strong></div>
+      <div class="metric-card"><span>Late today</span><strong>{{ summary.totalLate }}</strong></div>
+    </section>
+
+    <section class="panel-card">
+      <div class="panel-heading">
+        <div>
+          <h3>Account directory</h3>
+          <p>Passwords are never shown in the admin interface.</p>
+        </div>
+        <span class="record-count">{{ users.length }} records</span>
+      </div>
+
+      <div *ngIf="isLoading" class="empty-state">Loading user records...</div>
+      <div *ngIf="!isLoading && users.length === 0" class="empty-state">No registered users found.</div>
+
+      <div *ngIf="users.length > 0" class="table-scroll">
+        <table class="user-table">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Registered</th>
+              <th>Monthly salary</th>
+              <th>Working days</th>
+              <th>Access</th>
+              <th class="actions-heading">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let account of users">
+              <td>
+                <div class="user-cell">
+                  <img *ngIf="account.profileImage; else userInitial" [src]="account.profileImage" [alt]="account.fullName" />
+                  <ng-template #userInitial>
+                    <span class="user-initial">{{ (account.fullName || 'U').charAt(0).toUpperCase() }}</span>
+                  </ng-template>
+                  <strong>{{ account.fullName }}</strong>
+                </div>
+              </td>
+              <td>{{ account.email }}</td>
+              <td><span class="role-label">{{ account.role }}</span></td>
+              <td>{{ account.createdAt ? (account.createdAt | date: 'mediumDate') : 'Legacy record' }}</td>
+              <td>
+                <ng-container *ngIf="!account.active && account.role === 'USER'; else existingSalary">
+                  <input
+                    class="approval-salary"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    [name]="'approval-salary-' + account.id"
+                    [(ngModel)]="salaryDrafts[account.id]"
+                    [attr.aria-label]="'Optional monthly salary for ' + account.fullName"
+                    placeholder="Optional"
+                  />
+                </ng-container>
+                <ng-template #existingSalary>
+                  <form class="salary-form" (ngSubmit)="saveSalary(account)">
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      [name]="'salary-' + account.id"
+                      [(ngModel)]="salaryDrafts[account.id]"
+                      [attr.aria-label]="'Monthly salary for ' + account.fullName"
+                    />
+                    <button type="submit" class="salary-save" [disabled]="isSavingSalaryFor === account.id">
+                      {{ isSavingSalaryFor === account.id ? 'Saving' : 'Save' }}
+                    </button>
+                  </form>
+                </ng-template>
+              </td>
+              <td><strong>{{ account.workingDaysThisMonth }}</strong> days</td>
+              <td>
+                <span class="access-status" [class.access-approved]="account.active" [class.access-pending]="!account.active">
+                  {{ account.active ? 'Approved' : 'Pending' }}
+                </span>
+              </td>
+              <td class="actions-cell">
+                <button
+                  *ngIf="!account.active && account.role === 'USER'"
+                  type="button"
+                  class="approve-button"
+                  (click)="approveUser(account)"
+                  [disabled]="isApprovingUserId === account.id"
+                >{{ isApprovingUserId === account.id ? 'Approving...' : 'Approve' }}</button>
+                <span *ngIf="account.active || account.role !== 'USER'" class="no-action">-</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel-card activity-panel">
+      <div class="panel-heading">
+        <div>
+          <h3>Recent admin activity</h3>
+          <p>Approval and location changes are recorded here.</p>
+        </div>
+      </div>
+      <div *ngIf="activity.length === 0" class="empty-state">No recent changes.</div>
+      <div *ngFor="let item of activity" class="activity-row">
+        <span class="activity-marker"></span>
+        <div><strong>{{ item.action }}</strong><span>{{ item.details }}</span></div>
+        <time>{{ item.createdAt | date: 'short' }}</time>
+      </div>
+    </section>
+  </main>
+
+  <main *ngIf="activeSection === 'locations'" class="section-content">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">Geofence configuration</p>
+        <h2>Attendance locations</h2>
+        <p>Active locations define where users are allowed to check in or out.</p>
+      </div>
+      <span class="record-count">{{ locations.length }} locations</span>
+    </div>
+
+    <div class="location-layout">
+      <section class="panel-card location-editor">
+        <div class="panel-heading">
+          <div>
+            <h3>{{ editingLocationId === null ? 'Add a location' : 'Edit location' }}</h3>
+            <p>Use GPS coordinates and a permitted radius in meters.</p>
+          </div>
+        </div>
+
+        <form class="location-form" (ngSubmit)="saveLocation()" #locationEditor="ngForm">
+          <label>
+            <span>Location name</span>
+            <input name="name" [(ngModel)]="locationForm.name" placeholder="Main office" maxlength="120" required />
+          </label>
+          <label>
+            <span>Address or note</span>
+            <input name="address" [(ngModel)]="locationForm.address" placeholder="Building, city" maxlength="250" />
+          </label>
+          <div class="coordinate-grid">
+            <label>
+              <span>Latitude</span>
+              <input name="latitude" type="number" step="any" min="-90" max="90" [(ngModel)]="locationForm.latitude" required />
+            </label>
+            <label>
+              <span>Longitude</span>
+              <input name="longitude" type="number" step="any" min="-180" max="180" [(ngModel)]="locationForm.longitude" required />
+            </label>
+          </div>
+          <label class="radius-field">
+            <span>Allowed radius (meters)</span>
+            <input name="radiusMeters" type="number" min="1" [(ngModel)]="locationForm.radiusMeters" required />
+          </label>
+          <label class="toggle-row">
+            <input name="active" type="checkbox" [(ngModel)]="locationForm.active" />
+            <span>Location is active for attendance</span>
+          </label>
+          <div class="form-actions">
+            <button type="submit" class="save-button" [disabled]="locationEditor.invalid || isSavingLocation">
+              {{ isSavingLocation ? 'Saving...' : (editingLocationId === null ? 'Add location' : 'Save changes') }}
+            </button>
+            <button *ngIf="editingLocationId !== null" type="button" class="cancel-button" (click)="resetLocationForm()">Cancel</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="location-list">
+        <article *ngFor="let location of locations" class="location-card">
+          <div class="location-card-heading">
+            <div>
+              <span class="access-status" [class.access-approved]="location.active" [class.access-pending]="!location.active">
+                {{ location.active ? 'Active' : 'Inactive' }}
+              </span>
+              <h3>{{ location.name }}</h3>
+              <p>{{ location.address || 'No address provided' }}</p>
+            </div>
+            <button type="button" class="edit-button" (click)="editLocation(location)">Edit</button>
+          </div>
+          <div class="location-coordinates">
+            <div><span>Latitude</span><strong>{{ location.latitude }}</strong></div>
+            <div><span>Longitude</span><strong>{{ location.longitude }}</strong></div>
+            <div><span>Radius</span><strong>{{ location.radiusMeters }} m</strong></div>
+          </div>
+          <button *ngIf="location.active" type="button" class="deactivate-button" (click)="deactivateLocation(location)">Deactivate location</button>
+        </article>
+        <div *ngIf="locations.length === 0" class="panel-card empty-state">No locations configured yet.</div>
+      </section>
+    </div>
+  </main>
 </div>

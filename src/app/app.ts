@@ -1,5 +1,5 @@
 import { Component, signal } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -9,4 +9,14 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 })
 export class App {
   protected readonly title = signal('attendease-ui');
+  isAdminRoute = false;
+
+  constructor(router: Router) {
+    this.isAdminRoute = router.url.startsWith('/admin');
+    router.events.subscribe((event) => {
+      if (event instanceof NavigationEnd) {
+        this.isAdminRoute = event.urlAfterRedirects.startsWith('/admin');
+      }
+    });
+  }
 }
