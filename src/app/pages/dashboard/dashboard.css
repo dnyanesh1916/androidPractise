@@ -4,6 +4,8 @@
   box-sizing: border-box;
   background: linear-gradient(135deg, #eff6ff, #f8fafc 60%, #e2e8f0);
   padding: 24px 16px;
+  color: #0f172a;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 .dashboard-shell {
@@ -173,12 +175,172 @@ h2, h3 {
 
 .pay-total {
   grid-column: 1 / -1;
+  border-color: #e2e8f0;
+  background: #f8fafc;
+}
+
+.amount-positive {
+  color: #166534;
+}
+
+.pay-total strong {
+  color: #0f172a;
+}
+
+.pay-total.negative-total {
+  border-color: #fecaca;
+  background: #fff1f2;
+}
+
+.pay-total.negative-total strong,
+.amount-negative {
+  color: #b91c1c;
+}
+
+.pay-total.positive-total {
   border-color: #b7dfc8;
   background: #eef8f1;
 }
 
-.pay-total strong {
+.pay-total strong.amount-positive {
   color: #166534;
+}
+
+.attendance-heading,
+.calendar-month-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.attendance-heading {
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.attendance-heading .eyebrow {
+  margin-bottom: 4px;
+}
+
+.calendar-month {
+  color: #1d4ed8;
+  font-size: 0.88rem;
+  white-space: nowrap;
+}
+
+.calendar-month-controls {
+  gap: 7px;
+}
+
+.calendar-nav {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 1px solid #dbeafe;
+  border-radius: 9px;
+  background: #f8fbff;
+  color: #1d4ed8;
+  font: inherit;
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.attendance-calendar {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.calendar-weekday {
+  padding: 7px 0;
+  color: #64748b;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.calendar-day {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  aspect-ratio: 1 / 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: #f8fafc;
+  color: #334155;
+}
+
+.calendar-day.outside-month {
+  background: transparent;
+  color: #cbd5e1;
+}
+
+.calendar-day.today {
+  border-color: #93c5fd;
+  box-shadow: inset 0 0 0 1px #dbeafe;
+}
+
+.calendar-day.present-day {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.calendar-day.absent-day {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.calendar-date {
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.calendar-mark {
+  font-size: 0.88rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.calendar-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 14px;
+  color: #64748b;
+  font-size: 0.76rem;
+}
+
+.calendar-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.calendar-legend i {
+  display: inline-grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  border-radius: 6px;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.legend-present {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.legend-absent {
+  background: #fee2e2;
+  color: #b91c1c;
 }
 
 .user-avatar,

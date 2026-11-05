@@ -60,27 +60,53 @@
         <span>Total earned</span>
         <strong>{{ compensation.earnedPayThisMonth === null ? 'Not available' : (compensation.earnedPayThisMonth | currency: 'INR':'symbol':'1.0-2') }}</strong>
       </div>
-      <div class="pay-item pay-total">
+      <div
+        class="pay-item pay-total"
+        [class.negative-total]="compensation.totalBalanceThisMonth < 0"
+        [class.positive-total]="compensation.totalBalanceThisMonth > 0"
+      >
         <span>Total balance (earned minus advance)</span>
-        <strong>{{ compensation.totalBalanceThisMonth === null ? 'Not available' : (compensation.totalBalanceThisMonth | currency: 'INR':'symbol':'1.0-2') }}</strong>
+        <strong
+          [class.amount-negative]="compensation.totalBalanceThisMonth < 0"
+          [class.amount-positive]="compensation.totalBalanceThisMonth > 0"
+        >{{ compensation.totalBalanceThisMonth === null ? 'Not available' : (compensation.totalBalanceThisMonth | currency: 'INR':'symbol':'1.0-2') }}</strong>
       </div>
     </div>
   </section>
 
   <section class="entries-card">
-    <h3>My attendance</h3>
-    <div *ngIf="isLoadingAttendance" class="empty-state">Loading attendance...</div>
-    <div *ngIf="!isLoadingAttendance && attendanceEntries.length === 0" class="empty-state">No attendance records yet.</div>
-
-    <div class="entry-list" *ngIf="attendanceEntries.length > 0">
-      <div class="entry-item" *ngFor="let entry of attendanceEntries">
-        <div>
-          <strong>{{ entry.status }}</strong>
-          <small>{{ entry.checkInTime | date: 'medium' }}</small>
-          <small *ngIf="entry.checkOutTime">Check-out: {{ entry.checkOutTime | date: 'shortTime' }}</small>
-        </div>
-        <span>{{ entry.locationVerified ? 'Location verified' : 'Location check pending' }}</span>
+    <div class="attendance-heading">
+      <div>
+        <p class="eyebrow">Attendance history</p>
+        <h3>My attendance</h3>
       </div>
+      <div class="calendar-month-controls">
+        <button type="button" class="calendar-nav" aria-label="Previous month" (click)="changeCalendarMonth(-1)">‹</button>
+        <strong class="calendar-month">{{ calendarMonthDate | date: 'MMMM yyyy' }}</strong>
+        <button type="button" class="calendar-nav" aria-label="Next month" (click)="changeCalendarMonth(1)">›</button>
+      </div>
+    </div>
+    <div *ngIf="isLoadingAttendance" class="empty-state">Loading attendance...</div>
+    <div *ngIf="!isLoadingAttendance" class="attendance-calendar" role="grid" [attr.aria-label]="'Attendance for ' + (calendarMonthDate | date: 'MMMM yyyy')">
+      <span *ngFor="let weekday of weekdays" class="calendar-weekday" role="columnheader">{{ weekday }}</span>
+      <div
+        *ngFor="let day of calendarDays"
+        class="calendar-day"
+        role="gridcell"
+        [class.outside-month]="!day.isCurrentMonth"
+        [class.today]="day.isToday"
+        [class.present-day]="day.status === 'present'"
+        [class.absent-day]="day.status === 'absent'"
+        [attr.aria-label]="day.status === 'present' ? 'Present on day ' + day.date : day.status === 'absent' ? 'Absent on day ' + day.date : day.status === 'unknown' ? 'Attendance unavailable for day ' + day.date : 'No attendance marked on day ' + day.date"
+      >
+        <span class="calendar-date">{{ day.date }}</span>
+        <span *ngIf="day.status === 'present'" class="calendar-mark" aria-hidden="true">✓</span>
+        <span *ngIf="day.status === 'absent'" class="calendar-mark" aria-hidden="true">×</span>
+      </div>
+    </div>
+    <div class="calendar-legend" *ngIf="!isLoadingAttendance && !attendanceLoadFailed">
+      <span><i class="legend-present">✓</i> Present</span>
+      <span><i class="legend-absent">×</i> No attendance</span>
     </div>
   </section>
 </div>

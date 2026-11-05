@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -33,7 +33,23 @@ interface AttendanceLocation {
   active: boolean;
 }
 
+interface AdminAttendanceEntry {
+  attendanceId: number;
+  status: string;
+  checkInTime: string;
+  checkOutTime: string | null;
+}
+
+interface AdminAttendanceCalendarDay {
+  key: string;
+  date: number | null;
+  isCurrentMonth: boolean;
+  isToday: boolean;
+  entries: AdminAttendanceEntry[];
+}
+
 type AdminSection = 'users' | 'locations';
+type UserDetailTab = 'compensation' | 'attendance';
 
 type CompensationTransactionType = 'SALARY_PAYMENT' | 'ADVANCE';
 
@@ -43,7 +59,7 @@ type CompensationTransactionType = 'SALARY_PAYMENT' | 'ADVANCE';
   templateUrl: './admin.html',
   styleUrl: './admin.css'
 })
-export class Admin implements OnInit {
+export class Admin implements OnInit, OnDestroy {
   summary: any = { totalUsers: 0, totalPresent: 0, totalLate: 0, totalAbsent: 0 };
   users: AdminUser[] = [];
   locations: AttendanceLocation[] = [];
@@ -54,10 +70,20 @@ export class Admin implements OnInit {
   isSavingLocation = false;
   isSavingSalaryFor: number | null = null;
   isApprovingUserId: number | null = null;
+  hoveredUserId: number | null = null;
   selectedUser: AdminUser | null = null;
+  activeDetailTab: UserDetailTab = 'compensation';
   userTransactions: any[] = [];
+  userAttendance: AdminAttendanceEntry[] = [];
+  attendanceCalendarDate = new Date();
+  attendanceCalendarDays: AdminAttendanceCalendarDay[] = [];
+  readonly attendanceWeekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   isLoadingTransactions = false;
+  isLoadingAttendance = false;
+  attendanceMessage = '';
   isSavingTransaction = false;
+  transactionMessage = '';
+  isTransactionError = false;
   transactionAmount: number | null = null;
   transactionDescription = '';
   dailySalaryDrafts: Record<number, number | null> = {};
@@ -66,6 +92,8 @@ export class Admin implements OnInit {
   isError = false;
   editingLocationId: number | null = null;
   locationForm = this.emptyLocationForm();
+  private userRefreshTimer: number | null = null;
+  private isLoadingUsers = false;
 
   constructor(
     private attendanceService: AttendanceService,
@@ -82,6 +110,26 @@ export class Admin implements OnInit {
     }
 
     this.loadData();
+    if (typeof window !== 'undefined') {
+      this.userRefreshTimer = window.setInterval(() => {
+        if (!document.hidden) {
+          this.refreshAdminData();
+        }
+      }, 15000);
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.userRefreshTimer !== null && typeof window !== 'undefined') {
+      window.clearInterval(this.userRefreshTimer);
+    }
+  }
+
+  @HostListener('window:focus')
+  refreshUsersOnFocus(): void {
+    if (this.user && !document.hidden) {
+      this.refreshAdminData();
+    }
   }
 
   get pendingUsers(): number {
@@ -95,13 +143,7 @@ export class Admin implements OnInit {
 
   loadData(): void {
     this.isLoading = true;
-    this.attendanceService.getAdminSummary().subscribe({
-      next: (response) => {
-        this.summary = response || this.summary;
-        this.cdr.detectChanges();
-      },
-      error: () => this.showMessage('Could not load the attendance summary.', true)
-    });
+    this.loadAdminSummary();
     this.loadUsers();
     this.loadLocations();
     this.attendanceService.getAdminActivity().subscribe({
@@ -116,7 +158,29 @@ export class Admin implements OnInit {
     });
   }
 
+  private refreshAdminData(): void {
+    this.loadAdminSummary();
+    this.loadUsers();
+    if (this.selectedUser && this.selectedUser.source !== 'LEGACY') {
+      this.loadUserAttendance(this.selectedUser.id);
+    }
+  }
+
+  private loadAdminSummary(): void {
+    this.attendanceService.getAdminSummary().subscribe({
+      next: (response) => {
+        this.summary = response || this.summary;
+        this.cdr.detectChanges();
+      },
+      error: () => this.showMessage('Could not load the attendance summary.', true)
+    });
+  }
+
   loadUsers(): void {
+    if (this.isLoadingUsers) {
+      return;
+    }
+    this.isLoadingUsers = true;
     const [year, month] = this.selectedMonth.split('-').map(Number);
     this.attendanceService.getAdminUsers(year, month).subscribe({
       next: (response) => {
@@ -125,11 +189,12 @@ export class Admin implements OnInit {
         if (this.selectedUser) {
           this.selectedUser = this.users.find(account => account.id === this.selectedUser?.id) || this.selectedUser;
         }
+        this.isLoadingUsers = false;
         this.isLoading = false;
         this.cdr.detectChanges();
       },
       error: (error) => {
-        this.users = [];
+        this.isLoadingUsers = false;
         this.isLoading = false;
         this.showMessage(error?.error?.message || 'Could not load registered users.', true);
       }
@@ -142,14 +207,23 @@ export class Admin implements OnInit {
 
   openUserDetails(account: AdminUser): void {
     this.selectedUser = account;
+    this.activeDetailTab = 'compensation';
     this.userTransactions = [];
+    this.userAttendance = [];
+    this.attendanceCalendarDate = new Date();
+    this.buildAttendanceCalendar();
     this.transactionAmount = null;
     this.transactionDescription = '';
+    this.transactionMessage = '';
+    this.attendanceMessage = '';
     if (account.source === 'LEGACY') {
       return;
     }
 
+    this.loadAdminSummary();
+    this.loadUsers();
     this.isLoadingTransactions = true;
+    this.loadUserAttendance(account.id);
     this.attendanceService.getUserTransactions(account.id).subscribe({
       next: (transactions) => {
         this.userTransactions = transactions || [];
@@ -158,7 +232,7 @@ export class Admin implements OnInit {
       },
       error: (error) => {
         this.isLoadingTransactions = false;
-        this.showMessage(error?.error?.message || 'Could not load compensation history.', true);
+        this.showTransactionMessage(this.getRequestErrorMessage(error, 'Could not load compensation history.'), true);
       }
     });
   }
@@ -166,21 +240,118 @@ export class Admin implements OnInit {
   closeUserDetails(): void {
     this.selectedUser = null;
     this.userTransactions = [];
+    this.userAttendance = [];
+    this.attendanceCalendarDays = [];
     this.transactionAmount = null;
     this.transactionDescription = '';
+    this.transactionMessage = '';
+    this.attendanceMessage = '';
+  }
+
+  selectDetailTab(tab: UserDetailTab): void {
+    this.activeDetailTab = tab;
+    if (tab === 'attendance' && this.selectedUser && this.selectedUser.source !== 'LEGACY') {
+      this.loadUserAttendance(this.selectedUser.id);
+    }
+  }
+
+  changeAttendanceMonth(offset: number): void {
+    this.attendanceCalendarDate = new Date(
+      this.attendanceCalendarDate.getFullYear(),
+      this.attendanceCalendarDate.getMonth() + offset,
+      1
+    );
+    this.buildAttendanceCalendar();
+  }
+
+  private buildAttendanceCalendar(): void {
+    const year = this.attendanceCalendarDate.getFullYear();
+    const month = this.attendanceCalendarDate.getMonth();
+    const firstDayOffset = (new Date(year, month, 1).getDay() + 6) % 7;
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const cellCount = Math.ceil((firstDayOffset + daysInMonth) / 7) * 7;
+    const todayKey = this.attendanceDateKey(new Date());
+    const entriesByDate = new Map<string, AdminAttendanceEntry[]>();
+
+    for (const entry of this.userAttendance) {
+      const key = this.attendanceDateKey(entry.checkInTime);
+      if (key) {
+        const entries = entriesByDate.get(key) || [];
+        entries.push(entry);
+        entriesByDate.set(key, entries);
+      }
+    }
+
+    this.attendanceCalendarDays = Array.from({ length: cellCount }, (_, index) => {
+      const day = new Date(year, month, index - firstDayOffset + 1);
+      const key = this.attendanceDateKey(day);
+      const isCurrentMonth = day.getMonth() === month;
+      return {
+        key,
+        date: isCurrentMonth ? day.getDate() : null,
+        isCurrentMonth,
+        isToday: isCurrentMonth && key === todayKey,
+        entries: isCurrentMonth ? entriesByDate.get(key) || [] : []
+      };
+    });
+  }
+
+  private attendanceDateKey(value: string | Date): string {
+    if (value instanceof Date) {
+      return `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, '0')}-${String(value.getDate()).padStart(2, '0')}`;
+    }
+    return value.slice(0, 10);
+  }
+
+  private loadUserAttendance(userId: number): void {
+    this.isLoadingAttendance = true;
+    this.attendanceMessage = '';
+    this.attendanceService.getAdminUserAttendance(userId).subscribe({
+      next: (entries) => {
+        if (this.selectedUser?.id === userId) {
+          this.userAttendance = entries || [];
+          this.buildAttendanceCalendar();
+        }
+        this.isLoadingAttendance = false;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        this.isLoadingAttendance = false;
+        if (this.selectedUser?.id === userId) {
+          this.attendanceMessage = this.getRequestErrorMessage(error, "Could not load this user's attendance.");
+        }
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  getTransactionRestriction(account: AdminUser): string {
+    if (account.dailySalary === null || account.dailySalary === undefined) {
+      return 'Set a daily salary before recording a salary payment or advance.';
+    }
+    if (this.selectedMonth === this.currentMonthValue() && account.workingDaysThisMonth === 0) {
+      return 'Mark attendance at least once this month before recording a salary payment or advance.';
+    }
+    return '';
   }
 
   recordTransaction(type: CompensationTransactionType): void {
     if (!this.selectedUser || this.selectedUser.source === 'LEGACY') {
       return;
     }
+    this.transactionMessage = '';
+    const restriction = this.getTransactionRestriction(this.selectedUser);
+    if (restriction) {
+      this.showTransactionMessage(restriction, true);
+      return;
+    }
     const amount = Number(this.transactionAmount);
     if (!Number.isFinite(amount) || amount <= 0) {
-      this.showMessage('Enter an amount greater than zero.', true);
+      this.showTransactionMessage('Enter an amount greater than zero.', true);
       return;
     }
     if (!this.transactionDescription.trim()) {
-      this.showMessage('Enter a description for this transaction.', true);
+      this.showTransactionMessage('Enter a description for this transaction.', true);
       return;
     }
 
@@ -193,14 +364,14 @@ export class Admin implements OnInit {
         this.transactionAmount = null;
         this.transactionDescription = '';
         this.isSavingTransaction = false;
-        this.showMessage(type === 'ADVANCE' ? 'Advance recorded.' : 'Salary payment recorded.', false);
+        this.showTransactionMessage(type === 'ADVANCE' ? 'Advance recorded.' : 'Salary payment recorded.', false);
         this.loadUsers();
         this.loadActivity();
         this.cdr.detectChanges();
       },
       error: (error) => {
         this.isSavingTransaction = false;
-        this.showMessage(error?.error?.message || 'Could not record this transaction.', true);
+        this.showTransactionMessage(this.getRequestErrorMessage(error, 'Could not record this transaction.'), true);
       }
     });
   }
@@ -327,14 +498,29 @@ export class Admin implements OnInit {
   }
 
   logout(): void {
-    this.authService.logout();
-    this.router.navigateByUrl('/login');
+    this.authService.logout().subscribe({
+      next: () => this.router.navigateByUrl('/login'),
+      error: () => this.router.navigateByUrl('/login')
+    });
   }
 
   private showMessage(message: string, isError: boolean): void {
     this.message = message;
     this.isError = isError;
     this.cdr.detectChanges();
+  }
+
+  private showTransactionMessage(message: string, isError: boolean): void {
+    this.transactionMessage = message;
+    this.isTransactionError = isError;
+    this.cdr.detectChanges();
+  }
+
+  private getRequestErrorMessage(error: any, fallback: string): string {
+    if (error?.status === 401 || error?.status === 403) {
+      return 'Your admin session is no longer authorized. Sign out and sign in again to continue.';
+    }
+    return error?.error?.message || error?.message || fallback;
   }
 
   private emptyLocationForm() {

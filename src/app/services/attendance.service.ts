@@ -53,6 +53,10 @@ export class AttendanceService {
     return this.http.get(`${API_BASE_URL}/api/admin/users/${userId}/transactions`, this.sessionOptions);
   }
 
+  getAdminUserAttendance(userId: number): Observable<any> {
+    return this.http.get(`${API_BASE_URL}/api/admin/users/${userId}/attendance`, this.sessionOptions);
+  }
+
   addUserTransaction(userId: number, type: 'SALARY_PAYMENT' | 'ADVANCE', amount: number, description: string): Observable<any> {
     return this.http.post(`${API_BASE_URL}/api/admin/users/${userId}/transactions`, { type, amount, description }, this.sessionOptions);
   }

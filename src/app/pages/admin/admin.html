@@ -83,12 +83,32 @@
             <tr *ngFor="let account of users">
               <td>
                 <div class="user-cell">
-                  <img *ngIf="account.profileImage; else userInitial" [src]="account.profileImage" [alt]="account.fullName" />
-                  <ng-template #userInitial>
-                    <span class="user-initial">{{ (account.fullName || 'U').charAt(0).toUpperCase() }}</span>
-                  </ng-template>
-                  <strong>{{ account.fullName }}</strong>
-                  <button type="button" class="details-button" (click)="openUserDetails(account)">Details</button>
+                  <button
+                    type="button"
+                    class="user-identity-button"
+                    (mouseenter)="hoveredUserId = account.id"
+                    (mouseleave)="hoveredUserId = null"
+                    (focus)="hoveredUserId = account.id"
+                    (blur)="hoveredUserId = null"
+                    (click)="openUserDetails(account)"
+                    [attr.aria-label]="'View details for ' + account.fullName"
+                  >
+                    <img *ngIf="account.profileImage; else userInitial" [src]="account.profileImage" [alt]="account.fullName" />
+                    <ng-template #userInitial>
+                      <span class="user-initial">{{ (account.fullName || 'U').charAt(0).toUpperCase() }}</span>
+                    </ng-template>
+                    <strong>{{ account.fullName }}</strong>
+                  </button>
+                  <div *ngIf="hoveredUserId === account.id" class="user-hover-card" role="tooltip">
+                    <strong>{{ account.fullName }}</strong>
+                    <span>{{ account.email }}</span>
+                    <span>{{ account.active ? 'Approved' : 'Pending approval' }}</span>
+                    <span [class.amount-negative]="account.totalBalanceThisMonth !== null && account.totalBalanceThisMonth < 0"
+                      [class.amount-positive]="account.totalBalanceThisMonth !== null && account.totalBalanceThisMonth > 0">
+                      Balance:
+                      {{ account.totalBalanceThisMonth === null ? 'Not set' : (account.totalBalanceThisMonth | currency: 'INR':'symbol':'1.0-2') }}
+                    </span>
+                  </div>
                 </div>
               </td>
               <td>{{ account.email }}</td>
@@ -263,13 +283,33 @@
         </div>
       </div>
 
+      <nav class="user-detail-tabs" aria-label="User detail sections">
+        <button type="button" [class.selected]="activeDetailTab === 'compensation'" (click)="selectDetailTab('compensation')">
+          Salary &amp; advances
+        </button>
+        <button type="button" [class.selected]="activeDetailTab === 'attendance'" (click)="selectDetailTab('attendance')">
+          Attendance
+        </button>
+      </nav>
+
+      <div *ngIf="activeDetailTab === 'compensation'" class="detail-tab-content">
       <div class="modal-finance-grid">
         <div><span>Daily salary</span><strong>{{ detailUser.dailySalary === null ? 'Not set' : (detailUser.dailySalary | currency: 'INR':'symbol':'1.0-2') }}</strong></div>
         <div><span>Days worked</span><strong>{{ detailUser.workingDaysThisMonth }} / {{ detailUser.scheduledWorkingDaysThisMonth }}</strong></div>        
         <div><span>Total earned</span><strong>{{ detailUser.earnedPayThisMonth === null ? 'Not set' : (detailUser.earnedPayThisMonth | currency: 'INR':'symbol':'1.0-2') }}</strong></div>
         <!-- <div><span>Salary paid</span><strong>{{ (detailUser.salaryPaidThisMonth || 0) | currency: 'INR':'symbol':'1.0-2' }}</strong></div> -->
         <div><span>Advance this month</span><strong>{{ (detailUser.monthlyAdvance || 0) | currency: 'INR':'symbol':'1.0-2' }}</strong></div>
-        <div><span>Total balance (earned minus advance)</span><strong>{{ detailUser.totalBalanceThisMonth === null ? 'Not set' : (detailUser.totalBalanceThisMonth | currency: 'INR':'symbol':'1.0-2') }}</strong></div>
+        <div
+          class="balance-card"
+          [class.negative-total]="detailUser.totalBalanceThisMonth !== null && detailUser.totalBalanceThisMonth < 0"
+          [class.positive-total]="detailUser.totalBalanceThisMonth !== null && detailUser.totalBalanceThisMonth > 0"
+        >
+          <span>Total balance (earned minus advance)</span>
+          <strong
+            [class.amount-negative]="detailUser.totalBalanceThisMonth !== null && detailUser.totalBalanceThisMonth < 0"
+            [class.amount-positive]="detailUser.totalBalanceThisMonth !== null && detailUser.totalBalanceThisMonth > 0"
+          >{{ detailUser.totalBalanceThisMonth === null ? 'Not set' : (detailUser.totalBalanceThisMonth | currency: 'INR':'symbol':'1.0-2') }}</strong>
+        </div>
       </div>
 
       <section class="transaction-panel" *ngIf="detailUser.source !== 'LEGACY'">
@@ -280,6 +320,17 @@
           </div>
         </div>
         <p *ngIf="!detailUser.active" class="transaction-note">Approve this user before recording compensation transactions.</p>
+        <p *ngIf="detailUser.active && getTransactionRestriction(detailUser)" class="transaction-note">
+          {{ getTransactionRestriction(detailUser) }}
+        </p>
+        <div
+          *ngIf="transactionMessage"
+          class="transaction-message"
+          [class.transaction-message-error]="isTransactionError"
+          [class.transaction-message-success]="!isTransactionError"
+          role="status"
+          aria-live="polite"
+        >{{ transactionMessage }}</div>
         <div class="transaction-entry">
           <label>
             <span>Amount</span>
@@ -316,6 +367,61 @@
               </tr>
             </tbody>
           </table>
+        </div>
+      </section>
+      </div>
+
+      <section *ngIf="activeDetailTab === 'attendance'" class="detail-tab-content attendance-history-panel">
+        <div class="attendance-tab-heading">
+          <div>
+            <h3>Attendance log</h3>
+            <p>Recorded check-in and check-out times for {{ detailUser.fullName }}.</p>
+          </div>
+          <button type="button" class="refresh-button" (click)="selectDetailTab('attendance')" [disabled]="isLoadingAttendance">
+            {{ isLoadingAttendance ? 'Refreshing...' : 'Refresh' }}
+          </button>
+        </div>
+        <div *ngIf="isLoadingAttendance" class="empty-state">Loading attendance records...</div>
+        <div *ngIf="!isLoadingAttendance && attendanceMessage" class="transaction-message transaction-message-error" role="alert">
+          {{ attendanceMessage }}
+        </div>
+        <div *ngIf="!isLoadingAttendance && !attendanceMessage" class="admin-attendance-calendar">
+          <div class="admin-calendar-heading">
+            <button type="button" class="calendar-nav" aria-label="Previous month" (click)="changeAttendanceMonth(-1)">‹</button>
+            <strong>{{ attendanceCalendarDate | date: 'MMMM yyyy' }}</strong>
+            <button type="button" class="calendar-nav" aria-label="Next month" (click)="changeAttendanceMonth(1)">›</button>
+          </div>
+          <div class="admin-calendar-grid" role="grid" [attr.aria-label]="'Attendance for ' + (attendanceCalendarDate | date: 'MMMM yyyy')">
+            <span *ngFor="let weekday of attendanceWeekdays" class="admin-calendar-weekday" role="columnheader">
+              {{ weekday }}
+            </span>
+            <div
+              *ngFor="let day of attendanceCalendarDays"
+              class="admin-calendar-day"
+              role="gridcell"
+              [class.outside-month]="!day.isCurrentMonth"
+              [class.today]="day.isToday"
+              [class.has-attendance]="day.entries.length > 0"
+              [attr.aria-hidden]="!day.isCurrentMonth"
+              [attr.aria-label]="day.isCurrentMonth ? (day.entries.length ? day.entries.length + ' attendance records on day ' + day.date : 'No attendance record on day ' + day.date) : null"
+            >
+              <span *ngIf="day.isCurrentMonth" class="admin-calendar-date">{{ day.date }}</span>
+              <div *ngFor="let entry of day.entries" class="admin-calendar-entry">
+                <span class="attendance-status" [class.attendance-active]="!entry.checkOutTime">
+                  {{ entry.checkOutTime ? 'Present' : 'Checked in' }}
+                </span>
+                <small>In {{ entry.checkInTime | date: 'shortTime' }}</small>
+                <small>{{ entry.checkOutTime ? 'Out ' + (entry.checkOutTime | date: 'shortTime') : 'No checkout' }}</small>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="userAttendance.length === 0" class="calendar-empty-note">
+            No attendance records for this user yet.
+          </div>
+          <div class="attendance-calendar-legend">
+            <span><i class="legend-attendance"></i> Attendance recorded</span>
+            <span><i class="legend-today"></i> Today</span>
+          </div>
         </div>
       </section>
     </section>

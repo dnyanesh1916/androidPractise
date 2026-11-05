@@ -1,10 +1,11 @@
 :host {
   display: block;
-  min-width: 1024px;
+  min-width: 0;
   min-height: 100vh;
   overflow-x: auto;
   background: linear-gradient(135deg, #eff6ff, #f8fafc 60%, #e2e8f0);
-  color: #172b3a;
+  color: #0f172a;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 * {
@@ -12,8 +13,8 @@
 }
 
 .admin-shell {
-  width: min(100% - 64px, 1440px);
-  min-width: 960px;
+  width: min(100% - 32px, 1440px);
+  min-width: 0;
   margin: 0 auto;
   padding: 28px 0 56px;
 }
@@ -24,7 +25,7 @@
   justify-content: space-between;
   min-height: 78px;
   padding: 0 0 22px;
-  border-bottom: 1px solid #d6e0e7;
+  border-bottom: 1px solid #dbeafe;
 }
 
 .admin-brand,
@@ -45,8 +46,8 @@
   width: 46px;
   height: 46px;
   place-items: center;
-  border-radius: 8px;
-  background: #1d5e59;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
   color: white;
   font-size: 1.25rem;
   font-weight: 800;
@@ -54,10 +55,9 @@
 
 .eyebrow {
   margin: 0 0 5px;
-  color: #55706e;
+  color: #64748b;
   font-size: 0.72rem;
   font-weight: 800;
-  background: linear-gradient(135deg, #eff6ff, #f8fafc 60%, #e2e8f0);
   text-transform: uppercase;
 }
 
@@ -65,24 +65,12 @@ h1,
 h2,
 h3,
 p {
-
-.details-button {
-  padding: 5px 8px;
-  border: 1px solid #d5e2e8;
-  border-radius: 5px;
-  background: #f7fafb;
-  color: #1d5e59;
-  font: inherit;
-  font-size: 0.75rem;
-  font-weight: 700;
-  cursor: pointer;
-}
   margin-top: 0;
 }
 
 .admin-header h1 {
   margin: 0;
-  color: #122a38;
+  color: #0f172a;
   font-size: 1.55rem;
 }
 
@@ -106,10 +94,10 @@ p {
   max-height: calc(100dvh - 48px);
   overflow: auto;
   padding: 26px;
-  border: 1px solid #dce5e9;
-  border-radius: 12px;
+  border: 1px solid #dbeafe;
+  border-radius: 20px;
   background: linear-gradient(135deg, #ffffff, #f7fbff);
-  box-shadow: 0 24px 70px rgba(10, 35, 45, 0.28);
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.24);
 }
 
 .modal-header,
@@ -128,7 +116,7 @@ p {
 
 .modal-header h2 {
   margin: 0;
-  color: #122a38;
+  color: #0f172a;
 }
 
 .modal-close {
@@ -166,8 +154,8 @@ p {
 .modal-user-initial {
   display: grid;
   place-items: center;
-  background: #e6f1ef;
-  color: #1d5e59;
+  background: #e0f2fe;
+  color: #1d4ed8;
   font-size: 1.5rem;
   font-weight: 800;
 }
@@ -188,6 +176,34 @@ p {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
   margin-bottom: 22px;
+}
+
+.user-detail-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 20px 0;
+  border-bottom: 1px solid #dbeafe;
+}
+
+.user-detail-tabs button {
+  min-height: 42px;
+  padding: 0 14px;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: #64748b;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.user-detail-tabs button.selected {
+  border-bottom-color: #2563eb;
+  color: #1d4ed8;
+}
+
+.detail-tab-content {
+  min-width: 0;
 }
 
 .modal-finance-grid div {
@@ -233,6 +249,27 @@ p {
   margin: 14px 0;
   color: #8a570f;
   font-size: 0.85rem;
+}
+
+.transaction-message {
+  margin: 14px 0;
+  padding: 11px 13px;
+  border-radius: 12px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.transaction-message-error {
+  border: 1px solid #fecaca;
+  background: #fff1f2;
+  color: #b91c1c;
+}
+
+.transaction-message-success {
+  border: 1px solid #bbf7d0;
+  background: #f0fdf4;
+  color: #166534;
 }
 
 .transaction-entry {
@@ -288,6 +325,181 @@ p {
   overflow: auto;
 }
 
+.attendance-history-panel {
+  padding-top: 6px;
+}
+
+.attendance-tab-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.attendance-tab-heading h3 {
+  margin: 0 0 5px;
+  color: #0f172a;
+}
+
+.attendance-tab-heading p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.admin-attendance-calendar {
+  padding: 16px;
+  border: 1px solid #e2ebff;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.admin-calendar-heading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 14px;
+  color: #1d4ed8;
+}
+
+.admin-calendar-heading strong {
+  min-width: 130px;
+  text-align: center;
+}
+
+.calendar-nav {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border: 1px solid #dbeafe;
+  border-radius: 9px;
+  background: #f8fbff;
+  color: #1d4ed8;
+  font: inherit;
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.admin-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.admin-calendar-weekday {
+  padding: 7px 2px;
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.admin-calendar-day {
+  display: flex;
+  min-width: 0;
+  min-height: 112px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 5px;
+  padding: 7px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.admin-calendar-day.outside-month {
+  border-color: transparent;
+  background: transparent;
+}
+
+.admin-calendar-day.today {
+  border-color: #60a5fa;
+  box-shadow: inset 0 0 0 1px #dbeafe;
+}
+
+.admin-calendar-day.has-attendance {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+}
+
+.admin-calendar-date {
+  align-self: flex-start;
+  color: #334155;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.admin-calendar-entry {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.admin-calendar-entry small {
+  overflow: hidden;
+  color: #475569;
+  font-size: 0.68rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attendance-status {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 4px 7px;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #166534;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.attendance-status.attendance-active {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.calendar-empty-note {
+  padding-top: 12px;
+  color: #64748b;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.attendance-calendar-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 14px;
+  color: #64748b;
+  font-size: 0.76rem;
+}
+
+.attendance-calendar-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.attendance-calendar-legend i {
+  width: 14px;
+  height: 14px;
+  border: 1px solid #bbf7d0;
+  border-radius: 4px;
+  background: #f0fdf4;
+}
+
+.attendance-calendar-legend .legend-today {
+  border-color: #60a5fa;
+  background: #fff;
+}
+
 .transaction-table {
   width: 100%;
   border-collapse: collapse;
@@ -311,13 +523,90 @@ p {
 }
 
 .amount-positive {
-  color: #17613d;
+  color: #166534;
   font-weight: 700;
 }
 
 .amount-negative {
-  color: #9e3829;
+  color: #b91c1c;
   font-weight: 700;
+}
+
+.user-cell {
+  position: relative;
+}
+
+.user-identity-button {
+  display: flex;
+  min-height: 42px;
+  align-items: center;
+  gap: 10px;
+  padding: 2px 6px 2px 0;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: #0f172a;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.user-identity-button:hover,
+.user-identity-button:focus-visible {
+  color: #1d4ed8;
+  outline: none;
+}
+
+.user-hover-card {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 8px);
+  left: 0;
+  display: flex;
+  min-width: 220px;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+  border: 1px solid #dbeafe;
+  border-radius: 14px;
+  background: white;
+  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.16);
+  color: #0f172a;
+  pointer-events: none;
+  white-space: normal;
+}
+
+.user-hover-card span {
+  color: #64748b;
+  font-size: 0.78rem;
+}
+
+.user-hover-card .amount-negative {
+  color: #b91c1c;
+  font-weight: 700;
+}
+
+.user-hover-card .amount-positive {
+  color: #166534;
+  font-weight: 700;
+}
+
+.balance-card.negative-total {
+  border-color: #fecaca;
+  background: #fff1f2;
+}
+
+.balance-card.positive-total {
+  border-color: #b7dfc8;
+  background: #eef8f1;
+}
+
+.modal-finance-grid strong.amount-negative {
+  color: #b91c1c;
+}
+
+.modal-finance-grid strong.amount-positive {
+  color: #166534;
 }
 
 .admin-identity {
@@ -389,8 +678,8 @@ p {
 }
 
 .section-tabs button.selected {
-  border-bottom-color: #1d5e59;
-  color: #174b47;
+  border-bottom-color: #2563eb;
+  color: #1d4ed8;
 }
 
 .tab-count,
@@ -449,7 +738,7 @@ p {
 
 .section-heading h2 {
   margin: 0 0 7px;
-  color: #152f3d;
+  color: #0f172a;
   font-size: 1.65rem;
 }
 
@@ -472,9 +761,10 @@ p {
   flex-direction: column;
   justify-content: space-between;
   padding: 16px 18px;
-  border: 1px solid #dce5e9;
-  border-radius: 8px;
+  border: 1px solid #e2ebff;
+  border-radius: 16px;
   background: white;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
 }
 
 .metric-card span {
@@ -493,9 +783,10 @@ p {
 
 .panel-card,
 .location-card {
-  border: 1px solid #dce5e9;
-  border-radius: 8px;
+  border: 1px solid #e2ebff;
+  border-radius: 18px;
   background: white;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
 }
 
 .panel-card {
@@ -509,7 +800,7 @@ p {
 .panel-heading h3,
 .location-card h3 {
   margin: 0 0 6px;
-  color: #1a3744;
+  color: #0f172a;
   font-size: 1rem;
 }
 
@@ -533,11 +824,15 @@ p {
 }
 
 .user-table th {
-  background: #f7f9fa;
-  color: #637984;
+  background: #f8fbff;
+  color: #64748b;
   font-size: 0.73rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+}
+
+.user-table tbody tr:hover {
+  background: #f8fbff;
 }
 
 .user-cell {
@@ -558,8 +853,8 @@ p {
 .user-initial {
   display: grid;
   place-items: center;
-  background: #e6f1ef;
-  color: #1d5e59;
+  background: #e0f2fe;
+  color: #1d4ed8;
   font-weight: 800;
 }
 
@@ -600,7 +895,7 @@ p {
   padding: 0 13px;
   border: 0;
   border-radius: 6px;
-  background: #1d5e59;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
   color: white;
   font: inherit;
   font-size: 0.82rem;
@@ -645,8 +940,8 @@ p {
   padding: 0 9px;
   border: 0;
   border-radius: 5px;
-  background: #e5efee;
-  color: #174b47;
+  background: #eff6ff;
+  color: #1d4ed8;
   font: inherit;
   font-size: 0.78rem;
   font-weight: 700;
@@ -742,8 +1037,8 @@ p {
 }
 
 .location-form input:focus {
-  border-color: #39877b;
-  box-shadow: 0 0 0 3px rgba(57, 135, 123, 0.12);
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
 .coordinate-grid {
@@ -762,7 +1057,105 @@ p {
 .toggle-row input {
   width: 17px;
   height: 17px;
-  accent-color: #1d5e59;
+  accent-color: #2563eb;
+}
+
+@media (max-width: 760px) {
+  .admin-shell {
+    width: min(100% - 24px, 1440px);
+    padding-top: 18px;
+  }
+
+  .admin-header,
+  .section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .admin-header {
+    gap: 16px;
+  }
+
+  .header-user {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .admin-identity {
+    text-align: left;
+  }
+
+  .heading-tools {
+    width: 100%;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+
+  .metrics-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .location-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .location-editor {
+    position: static;
+  }
+}
+
+@media (max-width: 520px) {
+  .admin-shell {
+    width: min(100% - 20px, 1440px);
+  }
+
+  .panel-card {
+    padding: 14px;
+  }
+
+  .panel-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .heading-tools {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .month-filter input,
+  .refresh-button {
+    width: 100%;
+  }
+
+  .section-tabs button {
+    min-width: 0;
+    padding: 0 9px;
+    font-size: 0.82rem;
+  }
+
+  .modal-backdrop {
+    padding: 12px;
+  }
+
+  .user-modal {
+    width: calc(100vw - 24px);
+    max-height: calc(100dvh - 24px);
+    padding: 18px;
+  }
+
+  .modal-finance-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .transaction-entry {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .transaction-entry label {
+    min-width: 0;
+  }
 }
 
 .form-actions {

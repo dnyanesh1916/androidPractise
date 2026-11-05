@@ -45,13 +45,10 @@ export class AuthService {
     return raw ? JSON.parse(raw) : null;
   }
 
-  logout(): void {
-    if (typeof window === 'undefined' || !('localStorage' in window)) {
-      return;
+  logout(): Observable<void> {
+    if (typeof window !== 'undefined' && 'localStorage' in window) {
+      localStorage.removeItem('attendease-user');
     }
-    localStorage.removeItem('attendease-user');
-    this.http.post(`${API_BASE_URL}/api/auth/logout`, {}, { withCredentials: true }).subscribe({
-      error: () => undefined
-    });
+    return this.http.post<void>(`${API_BASE_URL}/api/auth/logout`, {}, { withCredentials: true });
   }
 }
