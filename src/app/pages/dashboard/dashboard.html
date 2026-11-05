@@ -1,5 +1,5 @@
 <div class="dashboard-shell">
-  <header class="topbar">
+  <!-- <header class="topbar">
     <div>
       <p class="eyebrow">Welcome</p>
       <h2>{{ user?.fullName || 'User' }}</h2>
@@ -8,7 +8,11 @@
       <button class="ghost-button" routerLink="/attendance">Mark Attendance</button>
       <button class="ghost-button" (click)="logout()">Logout</button>
     </div>
-  </header>
+  </header> -->
+
+  <div *ngIf="message" class="alert-banner" [class.success-message]="!isError" [class.error-message]="isError" role="status">
+    {{ message }}
+  </div>
 
   <section class="user-card">
     <div class="user-summary-row">
@@ -17,11 +21,65 @@
         <div class="user-avatar default-avatar">{{ (user?.fullName || 'U').charAt(0).toUpperCase() }}</div>
       </ng-template>
 
+      <div class="user-profile-details">
+        <div class="user-profile-copy">
+          <p class="eyebrow">User profile</p>
+          <h3>{{ user?.fullName || 'User' }}</h3>
+          <p>{{ user?.email || 'No email available' }}</p>
+          <span class="status-pill">{{ user?.role || 'USER' }}</span>
+        </div>
+        <button type="button" class="ghost-button profile-logout" (click)="logout()">Logout</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="pay-card">
+    <div class="pay-card-heading">
       <div>
-        <p class="eyebrow">User profile</p>
-        <h3>{{ user?.fullName || 'User' }}</h3>
-        <p>{{ user?.email || 'No email available' }}</p>
-        <span class="status-pill">{{ user?.role || 'USER' }}</span>
+        <p class="eyebrow">{{ currentMonth }} compensation</p>
+        <h3>Pay summary</h3>
+      </div>
+      <span *ngIf="compensation?.dailySalary !== null && compensation?.dailySalary !== undefined" class="status-pill">Estimated</span>
+    </div>
+
+    <div *ngIf="isLoadingCompensation" class="empty-state">Loading compensation...</div>
+    <div *ngIf="!isLoadingCompensation && compensation" class="pay-grid">
+      <div class="pay-item">
+        <span>Daily salary</span>
+        <strong>{{ compensation.dailySalary === null ? 'Not set' : (compensation.dailySalary | currency: 'INR':'symbol':'1.0-2') }}</strong>
+      </div>
+      <div class="pay-item">
+        <span>Advance taken</span>
+        <strong>{{ (compensation.monthlyAdvance || 0) | currency: 'INR':'symbol':'1.0-2' }}</strong>
+      </div>
+      <div class="pay-item">
+        <span>Days worked</span>
+        <strong>{{ compensation.workingDaysThisMonth }} / {{ compensation.scheduledWorkingDaysThisMonth }}</strong>
+      </div>
+      <div class="pay-item">
+        <span>Total earned</span>
+        <strong>{{ compensation.earnedPayThisMonth === null ? 'Not available' : (compensation.earnedPayThisMonth | currency: 'INR':'symbol':'1.0-2') }}</strong>
+      </div>
+      <div class="pay-item pay-total">
+        <span>Total balance (earned minus advance)</span>
+        <strong>{{ compensation.totalBalanceThisMonth === null ? 'Not available' : (compensation.totalBalanceThisMonth | currency: 'INR':'symbol':'1.0-2') }}</strong>
+      </div>
+    </div>
+  </section>
+
+  <section class="entries-card">
+    <h3>My attendance</h3>
+    <div *ngIf="isLoadingAttendance" class="empty-state">Loading attendance...</div>
+    <div *ngIf="!isLoadingAttendance && attendanceEntries.length === 0" class="empty-state">No attendance records yet.</div>
+
+    <div class="entry-list" *ngIf="attendanceEntries.length > 0">
+      <div class="entry-item" *ngFor="let entry of attendanceEntries">
+        <div>
+          <strong>{{ entry.status }}</strong>
+          <small>{{ entry.checkInTime | date: 'medium' }}</small>
+          <small *ngIf="entry.checkOutTime">Check-out: {{ entry.checkOutTime | date: 'shortTime' }}</small>
+        </div>
+        <span>{{ entry.locationVerified ? 'Location verified' : 'Location check pending' }}</span>
       </div>
     </div>
   </section>

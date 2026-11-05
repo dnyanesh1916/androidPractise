@@ -43,6 +43,8 @@
           name="password"
           placeholder="Create a password"
           autocomplete="new-password"
+          minlength="8"
+          maxlength="128"
           required
           [(ngModel)]="form.password"
         >
@@ -69,15 +71,14 @@
           <button *ngIf="isCameraOpen" type="button" class="capture-button" (click)="capturePhoto()">
             Capture
           </button>
+          <button *ngIf="isCameraOpen" type="button" class="close-camera-button" (click)="closeCamera()">
+            Close
+          </button>
         </div>
 
         <video *ngIf="isCameraOpen" #registerCameraVideo autoplay playsinline muted class="camera-preview"></video>
         <img *ngIf="profileImage && !isCameraOpen" [src]="profileImage" alt="Profile preview" class="profile-preview" />
-
-        <label class="upload-box">
-          <span>Upload photo instead</span>
-          <input type="file" accept="image/*" capture="user" (change)="onPhotoSelected($event)" />
-        </label>
+        
       </div>
 
       <div *ngIf="message" [class.success-message]="isSuccess" [class.error-message]="!isSuccess">

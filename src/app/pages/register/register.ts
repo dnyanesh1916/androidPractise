@@ -54,12 +54,15 @@ export class Register {
       this.cameraStream = stream;
       this.isCameraOpen = true;
       this.isCameraLoading = false;
+      this.cdr.detectChanges();
 
       setTimeout(() => {
         const video = this.registerCameraVideo?.nativeElement;
         if (video) {
           video.srcObject = stream;
-          video.play().catch(() => undefined);
+          video.play().catch(() => {
+            this.showAlert('Unable to start the live camera preview.', false);
+          });
         }
       });
     }).catch(() => {
@@ -123,6 +126,16 @@ export class Register {
 
     if (!this.form.fullName || !this.form.email || !this.form.password || !this.form.confirmPassword) {
       this.showAlert('Please fill in all fields.', false);
+      return;
+    }
+
+    if (this.form.password.length < 8) {
+      this.showAlert('Password must be at least 8 characters long.', false);
+      return;
+    }
+
+    if (this.form.password.length > 128) {
+      this.showAlert('Password must be 128 characters or fewer.', false);
       return;
     }
 

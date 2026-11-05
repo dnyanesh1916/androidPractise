@@ -1,6 +1,7 @@
 :host {
   display: block;
-  min-height: 100vh;
+  min-height: var(--app-page-height, calc(100dvh - 85px));
+  box-sizing: border-box;
   background: linear-gradient(135deg, #eff6ff, #f8fafc 60%, #e2e8f0);
   padding: 24px 16px;
 }
@@ -10,7 +11,7 @@
 }
 
 .register-shell {
-  min-height: calc(100svh - 130px - env(safe-area-inset-bottom, 0px));
+  min-height: calc(var(--app-page-height, calc(100dvh - 85px)) - 48px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -111,6 +112,7 @@ h1 {
 
 .photo-button,
 .capture-button,
+.close-camera-button,
 .register-button {
   min-height: 48px;
   border: 0;
@@ -131,6 +133,12 @@ h1 {
   padding: 0 14px;
   background: #dcfce7;
   color: #166534;
+}
+
+.close-camera-button {
+  padding: 0 14px;
+  background: #e7edf1;
+  color: #435b68;
 }
 
 .camera-preview,

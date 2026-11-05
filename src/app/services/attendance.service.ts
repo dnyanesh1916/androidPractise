@@ -19,6 +19,13 @@ export class AttendanceService {
     return this.http.get(`${API_BASE_URL}/api/attendance/user/${userId}`, this.sessionOptions);
   }
 
+  getUserCompensation(userId: number, year: number, month: number): Observable<any> {
+    return this.http.get(`${API_BASE_URL}/api/attendance/user/${userId}/compensation`, {
+      ...this.sessionOptions,
+      params: { year, month }
+    });
+  }
+
   getUsers(): Observable<any> {
     return this.http.get(`${API_BASE_URL}/api/attendance/users`, this.sessionOptions);
   }
@@ -38,12 +45,20 @@ export class AttendanceService {
     });
   }
 
-  updateUserSalary(userId: number, monthlySalary: number): Observable<any> {
-    return this.http.patch(`${API_BASE_URL}/api/admin/users/${userId}/salary`, { monthlySalary }, this.sessionOptions);
+  updateUserDailySalary(userId: number, dailySalary: number): Observable<any> {
+    return this.http.patch(`${API_BASE_URL}/api/admin/users/${userId}/salary`, { dailySalary }, this.sessionOptions);
   }
 
-  approveUser(userId: number, source: string, monthlySalary: number | null): Observable<any> {
-    const body = monthlySalary === null ? {} : { monthlySalary };
+  getUserTransactions(userId: number): Observable<any> {
+    return this.http.get(`${API_BASE_URL}/api/admin/users/${userId}/transactions`, this.sessionOptions);
+  }
+
+  addUserTransaction(userId: number, type: 'SALARY_PAYMENT' | 'ADVANCE', amount: number, description: string): Observable<any> {
+    return this.http.post(`${API_BASE_URL}/api/admin/users/${userId}/transactions`, { type, amount, description }, this.sessionOptions);
+  }
+
+  approveUser(userId: number, source: string, dailySalary: number | null): Observable<any> {
+    const body = dailySalary === null ? {} : { dailySalary };
     return this.http.patch(`${API_BASE_URL}/api/admin/users/${userId}/approve`, body, {
       ...this.sessionOptions,
       params: { source }

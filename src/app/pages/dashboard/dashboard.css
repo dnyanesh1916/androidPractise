@@ -1,6 +1,7 @@
 :host {
   display: block;
-  min-height: 100vh;
+  min-height: var(--app-page-height, calc(100dvh - 85px));
+  box-sizing: border-box;
   background: linear-gradient(135deg, #eff6ff, #f8fafc 60%, #e2e8f0);
   padding: 24px 16px;
 }
@@ -18,7 +19,8 @@
 .location-card,
 .face-card,
 .entries-card,
-.user-card {
+.user-card,
+.pay-card {
   background: white;
   border: 1px solid #e2ebff;
   border-radius: 20px;
@@ -97,6 +99,86 @@ h2, h3 {
 .user-summary-row p {
   margin: 6px 0 0;
   color: #475569;
+}
+
+.user-profile-details {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.user-profile-copy {
+  min-width: 0;
+}
+
+.user-profile-copy p:not(.eyebrow) {
+  overflow-wrap: anywhere;
+}
+
+.profile-logout {
+  flex: 0 0 auto;
+}
+
+.pay-card {
+  padding: 18px;
+}
+
+.pay-card-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.pay-card-heading h3 {
+  margin: 0;
+  color: #0f172a;
+}
+
+.pay-card-heading .eyebrow {
+  margin-bottom: 5px;
+}
+
+.pay-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.pay-item {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.pay-item span {
+  color: #64748b;
+  font-size: 0.78rem;
+}
+
+.pay-item strong {
+  overflow-wrap: anywhere;
+  color: #0f172a;
+  font-size: 0.95rem;
+}
+
+.pay-total {
+  grid-column: 1 / -1;
+  border-color: #b7dfc8;
+  background: #eef8f1;
+}
+
+.pay-total strong {
+  color: #166534;
 }
 
 .user-avatar,
@@ -260,4 +342,9 @@ h2, h3 {
 .entry-item small,
 .entry-item span {
   color: #64748b;
+}
+
+.entry-item small {
+  display: block;
+  margin-top: 3px;
 }

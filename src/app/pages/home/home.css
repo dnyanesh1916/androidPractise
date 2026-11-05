@@ -1,6 +1,7 @@
 :host {
   display: block;
-  min-height: 100vh;
+  min-height: var(--app-page-height, calc(100dvh - 85px));
+  box-sizing: border-box;
   background: linear-gradient(135deg, #eff6ff, #f8fafc 60%, #e2e8f0);
   padding: 24px 16px;
 }
@@ -10,7 +11,7 @@
 }
 
 .home-shell {
-  min-height: calc(100svh - 130px - env(safe-area-inset-bottom, 0px));
+  min-height: calc(var(--app-page-height, calc(100dvh - 85px)) - 48px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -101,7 +102,7 @@ h1 {
   }
 
   .home-shell {
-    min-height: calc(100svh - 118px - env(safe-area-inset-bottom, 0px));
+    min-height: calc(var(--app-page-height, calc(100dvh - 85px)) - 36px);
   }
 
   .home-card {

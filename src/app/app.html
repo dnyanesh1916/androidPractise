@@ -3,19 +3,19 @@
 </main>
 
 <nav class="bottom-nav" [class.admin-hidden]="isAdminRoute" aria-label="Main navigation">
-	<a routerLink="/register" routerLinkActive="active" ariaCurrentWhenActive="page">
+	<a *ngIf="!isLoggedIn" routerLink="/register" routerLinkActive="active" ariaCurrentWhenActive="page">
 		<span class="nav-icon" aria-hidden="true">+</span>
 		<span>Register</span>
 	</a>
-	<a routerLink="/login" routerLinkActive="active" ariaCurrentWhenActive="page">
+	<a *ngIf="!isLoggedIn" routerLink="/login" routerLinkActive="active" ariaCurrentWhenActive="page">
 		<span class="nav-icon" aria-hidden="true">&gt;</span>
 		<span>Login</span>
 	</a>
-	<a routerLink="/attendance" routerLinkActive="active" ariaCurrentWhenActive="page">
+	<a *ngIf="isLoggedIn" routerLink="/attendance" routerLinkActive="active" ariaCurrentWhenActive="page">
 		<span class="nav-icon" aria-hidden="true">&#10003;</span>
 		<span>Attendance</span>
 	</a>
-	<a routerLink="/dashboard" routerLinkActive="active" ariaCurrentWhenActive="page">
+	<a *ngIf="isLoggedIn" routerLink="/dashboard" routerLinkActive="active" ariaCurrentWhenActive="page">
 		<span class="nav-icon dashboard-icon" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
 		<span>Dashboard</span>
 	</a>

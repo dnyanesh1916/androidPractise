@@ -1,12 +1,13 @@
 :host {
   display: block;
-  min-height: 100vh;
+  min-height: var(--app-page-height, calc(100dvh - 85px));
+  box-sizing: border-box;
   background: linear-gradient(135deg, #eff6ff, #f8fafc 60%, #e2e8f0);
   padding: 24px 16px;
 }
 
 .auth-shell {
-  min-height: 100vh;
+  min-height: calc(var(--app-page-height, calc(100dvh - 85px)) - 48px);
   display: flex;
   align-items: center;
   justify-content: center;

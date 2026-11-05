@@ -72,7 +72,8 @@
               <th>Email</th>
               <th>Role</th>
               <th>Registered</th>
-              <th>Monthly salary</th>
+              <th>Daily salary</th>
+              <th>Monthly advance</th>
               <th>Working days</th>
               <th>Access</th>
               <th class="actions-heading">Action</th>
@@ -87,6 +88,7 @@
                     <span class="user-initial">{{ (account.fullName || 'U').charAt(0).toUpperCase() }}</span>
                   </ng-template>
                   <strong>{{ account.fullName }}</strong>
+                  <button type="button" class="details-button" (click)="openUserDetails(account)">Details</button>
                 </div>
               </td>
               <td>{{ account.email }}</td>
@@ -99,21 +101,21 @@
                     type="number"
                     min="0"
                     step="0.01"
-                    [name]="'approval-salary-' + account.id"
-                    [(ngModel)]="salaryDrafts[account.id]"
-                    [attr.aria-label]="'Optional monthly salary for ' + account.fullName"
+                    [name]="'approval-daily-salary-' + account.id"
+                    [(ngModel)]="dailySalaryDrafts[account.id]"
+                    [attr.aria-label]="'Optional daily salary for ' + account.fullName"
                     placeholder="Optional"
                   />
                 </ng-container>
                 <ng-template #existingSalary>
-                  <form class="salary-form" (ngSubmit)="saveSalary(account)">
+                  <form class="salary-form" (ngSubmit)="saveDailySalary(account)">
                     <input
                       type="number"
                       min="0"
                       step="0.01"
-                      [name]="'salary-' + account.id"
-                      [(ngModel)]="salaryDrafts[account.id]"
-                      [attr.aria-label]="'Monthly salary for ' + account.fullName"
+                      [name]="'daily-salary-' + account.id"
+                      [(ngModel)]="dailySalaryDrafts[account.id]"
+                      [attr.aria-label]="'Daily salary for ' + account.fullName"
                     />
                     <button type="submit" class="salary-save" [disabled]="isSavingSalaryFor === account.id">
                       {{ isSavingSalaryFor === account.id ? 'Saving' : 'Save' }}
@@ -121,6 +123,7 @@
                   </form>
                 </ng-template>
               </td>
+              <td>{{ (account.monthlyAdvance || 0) | currency: 'INR':'symbol':'1.0-2' }}</td>
               <td><strong>{{ account.workingDaysThisMonth }}</strong> days</td>
               <td>
                 <span class="access-status" [class.access-approved]="account.active" [class.access-pending]="!account.active">
@@ -143,7 +146,7 @@
       </div>
     </section>
 
-    <section class="panel-card activity-panel">
+    <!-- <section class="panel-card activity-panel">
       <div class="panel-heading">
         <div>
           <h3>Recent admin activity</h3>
@@ -156,7 +159,7 @@
         <div><strong>{{ item.action }}</strong><span>{{ item.details }}</span></div>
         <time>{{ item.createdAt | date: 'short' }}</time>
       </div>
-    </section>
+    </section> -->
   </main>
 
   <main *ngIf="activeSection === 'locations'" class="section-content">
@@ -237,4 +240,84 @@
       </section>
     </div>
   </main>
+
+  <div *ngIf="selectedUser as detailUser" class="modal-backdrop" (click)="closeUserDetails()">
+    <section class="user-modal" role="dialog" aria-modal="true" aria-labelledby="user-modal-title" (click)="$event.stopPropagation()">
+      <header class="modal-header">
+        <div>
+          <p class="eyebrow">User record</p>
+          <h2 id="user-modal-title">{{ detailUser.fullName }}</h2>
+        </div>
+        <button type="button" class="modal-close" aria-label="Close user details" (click)="closeUserDetails()">×</button>
+      </header>
+
+      <div class="modal-user-profile">
+        <img *ngIf="detailUser.profileImage; else modalUserInitial" [src]="detailUser.profileImage" [alt]="detailUser.fullName" />
+        <ng-template #modalUserInitial>
+          <span class="modal-user-initial">{{ (detailUser.fullName || 'U').charAt(0).toUpperCase() }}</span>
+        </ng-template>
+        <div>
+          <strong>{{ detailUser.email }}</strong>
+          <span>{{ detailUser.role }} · {{ detailUser.active ? 'Approved' : 'Pending approval' }}</span>
+          <span>Registered {{ detailUser.createdAt ? (detailUser.createdAt | date: 'medium') : 'before record tracking' }}</span>
+        </div>
+      </div>
+
+      <div class="modal-finance-grid">
+        <div><span>Daily salary</span><strong>{{ detailUser.dailySalary === null ? 'Not set' : (detailUser.dailySalary | currency: 'INR':'symbol':'1.0-2') }}</strong></div>
+        <div><span>Days worked</span><strong>{{ detailUser.workingDaysThisMonth }} / {{ detailUser.scheduledWorkingDaysThisMonth }}</strong></div>        
+        <div><span>Total earned</span><strong>{{ detailUser.earnedPayThisMonth === null ? 'Not set' : (detailUser.earnedPayThisMonth | currency: 'INR':'symbol':'1.0-2') }}</strong></div>
+        <!-- <div><span>Salary paid</span><strong>{{ (detailUser.salaryPaidThisMonth || 0) | currency: 'INR':'symbol':'1.0-2' }}</strong></div> -->
+        <div><span>Advance this month</span><strong>{{ (detailUser.monthlyAdvance || 0) | currency: 'INR':'symbol':'1.0-2' }}</strong></div>
+        <div><span>Total balance (earned minus advance)</span><strong>{{ detailUser.totalBalanceThisMonth === null ? 'Not set' : (detailUser.totalBalanceThisMonth | currency: 'INR':'symbol':'1.0-2') }}</strong></div>
+      </div>
+
+      <section class="transaction-panel" *ngIf="detailUser.source !== 'LEGACY'">
+        <div class="transaction-heading">
+          <div>
+            <h3>Record transaction</h3>
+            <p>Salary payments are positive entries; advances are deducted.</p>
+          </div>
+        </div>
+        <p *ngIf="!detailUser.active" class="transaction-note">Approve this user before recording compensation transactions.</p>
+        <div class="transaction-entry">
+          <label>
+            <span>Amount</span>
+            <input type="number" min="0.01" step="0.01" [(ngModel)]="transactionAmount" name="transactionAmount" placeholder="0.00" />
+          </label>
+          <label class="transaction-description-field">
+            <span>Description</span>
+            <input type="text" maxlength="500" [(ngModel)]="transactionDescription" name="transactionDescription" placeholder="Reason or pay period" required />
+          </label>
+          <button type="button" class="transaction-credit" [disabled]="isSavingTransaction || !detailUser.active" (click)="recordTransaction('SALARY_PAYMENT')">
+            {{ isSavingTransaction ? 'Saving...' : '+ Salary paid' }}
+          </button>
+          <button type="button" class="transaction-advance" [disabled]="isSavingTransaction || !detailUser.active" (click)="recordTransaction('ADVANCE')">
+            {{ isSavingTransaction ? 'Saving...' : '− Advance taken' }}
+          </button>
+        </div>
+
+        <div *ngIf="isLoadingTransactions" class="empty-state">Loading transactions...</div>
+        <div *ngIf="!isLoadingTransactions && userTransactions.length === 0" class="empty-state">No salary or advance transactions recorded.</div>
+        <div *ngIf="userTransactions.length > 0" class="transaction-table-scroll">
+          <table class="transaction-table">
+            <thead>
+              <tr><th>Date and time</th><th>Transaction</th><th>Description</th><th>Amount</th><th>Recorded by</th></tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let transaction of userTransactions">
+                <td>{{ transaction.createdAt | date: 'medium' }}</td>
+                <td>{{ transaction.type === 'ADVANCE' ? 'Advance taken' : 'Salary paid' }}</td>
+                <td>{{ transaction.description || 'No description' }}</td>
+                <td [class.amount-negative]="transaction.type === 'ADVANCE'" [class.amount-positive]="transaction.type === 'SALARY_PAYMENT'">
+                  {{ transaction.type === 'ADVANCE' ? '−' : '+' }}{{ transaction.amount | currency: 'INR':'symbol':'1.0-2' }}
+                </td>
+                <td>{{ transaction.recordedByEmail }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+  </div>
 </div>

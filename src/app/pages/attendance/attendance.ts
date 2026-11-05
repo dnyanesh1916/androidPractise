@@ -25,6 +25,7 @@ export class AttendancePage implements OnInit, OnDestroy {
   isLoading = false;
   isCameraOpen = false;
   isCameraLoading = false;
+  isCameraReady = false;
   message = '';
   isSuccess = false;
   private cameraStream: MediaStream | null = null;
@@ -68,10 +69,12 @@ export class AttendancePage implements OnInit, OnDestroy {
       next: (response) => {
         this.todayEntries = response || [];
         this.isLoading = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.todayEntries = [];
         this.isLoading = false;
+        this.showAlert('Could not load attendance history.', false);
       }
     });
   }
@@ -105,6 +108,7 @@ export class AttendancePage implements OnInit, OnDestroy {
     }
 
     this.isCameraLoading = true;
+    this.isCameraReady = false;
     navigator.mediaDevices.getUserMedia({
       video: { facingMode: 'user' },
       audio: false
@@ -112,12 +116,21 @@ export class AttendancePage implements OnInit, OnDestroy {
       this.cameraStream = stream;
       this.isCameraOpen = true;
       this.isCameraLoading = false;
+      this.cdr.detectChanges();
 
       setTimeout(() => {
         const video = this.cameraVideo?.nativeElement;
         if (video) {
+          video.onloadedmetadata = () => {
+            this.isCameraReady = video.videoWidth > 0 && video.videoHeight > 0;
+            this.cdr.detectChanges();
+            if (this.isCameraReady) {
+              video.play().catch(() => {
+                this.showAlert('Unable to start the live camera preview.', false);
+              });
+            }
+          };
           video.srcObject = stream;
-          video.play().catch(() => undefined);
         }
       });
     }).catch(() => {
@@ -129,15 +142,15 @@ export class AttendancePage implements OnInit, OnDestroy {
 
   capturePhoto(): void {
     const video = this.cameraVideo?.nativeElement;
-    if (!video || !this.cameraStream) {
-      this.attendanceStatus = 'Please open the camera first.';
-      this.showAlert('Please open the camera first.', false);
+    if (!video || !this.cameraStream || !this.isCameraReady || !video.videoWidth || !video.videoHeight) {
+      this.attendanceStatus = 'Wait for the live camera preview before capturing.';
+      this.showAlert(this.attendanceStatus, false);
       return;
     }
 
     const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth || 640;
-    canvas.height = video.videoHeight || 480;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
 
     const context = canvas.getContext('2d');
     if (!context) {
@@ -159,6 +172,7 @@ export class AttendancePage implements OnInit, OnDestroy {
       this.cameraStream = null;
     }
     this.isCameraOpen = false;
+    this.isCameraReady = false;
   }
 
   onFaceSelected(event: Event): void {
@@ -172,6 +186,7 @@ export class AttendancePage implements OnInit, OnDestroy {
     reader.onload = () => {
       this.faceData = String(reader.result || '');
       this.attendanceStatus = 'Photo selected from device';
+      this.showAlert(this.attendanceStatus, true);
     };
     reader.readAsDataURL(file);
   }
@@ -181,7 +196,7 @@ export class AttendancePage implements OnInit, OnDestroy {
       return;
     }
 
-    if (!this.latitude || !this.longitude) {
+    if (this.latitude === null || this.longitude === null) {
       this.locationText = 'Please allow location access before marking attendance.';
       this.showAlert('Please allow location access before marking attendance.', false);
       return;
@@ -206,6 +221,11 @@ export class AttendancePage implements OnInit, OnDestroy {
         const backendMessage = response?.message || `${type === 'CHECK_IN' ? 'Check-in' : 'Check-out'} successful`;
         this.isSubmitting = false;
         this.attendanceStatus = backendMessage;
+        this.closeCamera();
+        this.faceData = '';
+        this.latitude = null;
+        this.longitude = null;
+        this.locationText = 'Allow location access before your next attendance mark.';
         this.showAlert(backendMessage, true);
         this.loadTodayAttendance();
       },

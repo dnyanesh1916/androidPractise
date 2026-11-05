@@ -1,12 +1,13 @@
 :host {
   display: block;
-  min-height: 100vh;
+  min-height: var(--app-page-height, calc(100dvh - 85px));
+  box-sizing: border-box;
   background: linear-gradient(135deg, #eff6ff, #f8fafc 60%, #e2e8f0);
   padding: 24px 16px;
 }
 
 .dashboard-shell {
-  max-width: 470px;
+  max-width: 420px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -107,6 +108,57 @@ h2, h3 {
   padding: 18px;
 }
 
+.photo-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #dfe9ff;
+  border-radius: 14px;
+  background: #f8fbff;
+}
+
+.photo-actions {
+  display: flex;
+  gap: 9px;
+}
+
+.photo-button,
+.capture-button,
+.close-camera-button {
+  min-height: 48px;
+  border: 0;
+  border-radius: 12px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.photo-button {
+  flex: 1;
+  padding: 0 10px;
+  background: #e8f0ff;
+  color: #1d4ed8;
+}
+
+.capture-button {
+  padding: 0 14px;
+  background: #dcfce7;
+  color: #166534;
+}
+
+.close-camera-button {
+  padding: 0 14px;
+  background: #e7edf1;
+  color: #435b68;
+}
+
+.photo-button:disabled,
+.capture-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .card-header-row {
   display: flex;
   justify-content: space-between;
@@ -147,14 +199,16 @@ h2, h3 {
   margin-bottom: 12px;
 }
 
-video,
+.camera-preview,
 .face-preview {
+  display: block;
   width: 100%;
+  min-height: 150px;
+  max-height: 210px;
   border-radius: 12px;
   border: 1px solid #dbeafe;
   background: #e2e8f0;
   object-fit: cover;
-  max-height: 260px;
 }
 
 .action-grid {

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -11,8 +11,13 @@ interface AdminUser {
   email: string;
   role: string;
   profileImage?: string | null;
-  monthlySalary: number | null;
+  dailySalary: number | null;
+  monthlyAdvance: number | null;
   workingDaysThisMonth: number;
+  scheduledWorkingDaysThisMonth: number;
+  earnedPayThisMonth: number | null;
+  salaryPaidThisMonth: number;
+  totalBalanceThisMonth: number | null;
   active: boolean;
   source: string;
   createdAt?: string | null;
@@ -29,6 +34,8 @@ interface AttendanceLocation {
 }
 
 type AdminSection = 'users' | 'locations';
+
+type CompensationTransactionType = 'SALARY_PAYMENT' | 'ADVANCE';
 
 @Component({
   selector: 'app-admin',
@@ -47,7 +54,13 @@ export class Admin implements OnInit {
   isSavingLocation = false;
   isSavingSalaryFor: number | null = null;
   isApprovingUserId: number | null = null;
-  salaryDrafts: Record<number, number | null> = {};
+  selectedUser: AdminUser | null = null;
+  userTransactions: any[] = [];
+  isLoadingTransactions = false;
+  isSavingTransaction = false;
+  transactionAmount: number | null = null;
+  transactionDescription = '';
+  dailySalaryDrafts: Record<number, number | null> = {};
   selectedMonth = this.currentMonthValue();
   message = '';
   isError = false;
@@ -57,7 +70,8 @@ export class Admin implements OnInit {
   constructor(
     private attendanceService: AttendanceService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -82,14 +96,23 @@ export class Admin implements OnInit {
   loadData(): void {
     this.isLoading = true;
     this.attendanceService.getAdminSummary().subscribe({
-      next: (response) => this.summary = response || this.summary,
+      next: (response) => {
+        this.summary = response || this.summary;
+        this.cdr.detectChanges();
+      },
       error: () => this.showMessage('Could not load the attendance summary.', true)
     });
     this.loadUsers();
     this.loadLocations();
     this.attendanceService.getAdminActivity().subscribe({
-      next: (response) => this.activity = response || [],
-      error: () => this.activity = []
+      next: (response) => {
+        this.activity = response || [];
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.activity = [];
+        this.cdr.detectChanges();
+      }
     });
   }
 
@@ -98,8 +121,12 @@ export class Admin implements OnInit {
     this.attendanceService.getAdminUsers(year, month).subscribe({
       next: (response) => {
         this.users = response || [];
-        this.salaryDrafts = Object.fromEntries(this.users.map(account => [account.id, account.monthlySalary]));
+        this.dailySalaryDrafts = Object.fromEntries(this.users.map(account => [account.id, account.dailySalary]));
+        if (this.selectedUser) {
+          this.selectedUser = this.users.find(account => account.id === this.selectedUser?.id) || this.selectedUser;
+        }
         this.isLoading = false;
+        this.cdr.detectChanges();
       },
       error: (error) => {
         this.users = [];
@@ -113,49 +140,131 @@ export class Admin implements OnInit {
     this.loadUsers();
   }
 
-  saveSalary(account: AdminUser): void {
-    const monthlySalary = this.salaryDrafts[account.id];
-    if (monthlySalary === null || monthlySalary === undefined || !Number.isFinite(Number(monthlySalary)) || Number(monthlySalary) < 0) {
-      this.showMessage('Enter a valid non-negative monthly salary.', true);
+  openUserDetails(account: AdminUser): void {
+    this.selectedUser = account;
+    this.userTransactions = [];
+    this.transactionAmount = null;
+    this.transactionDescription = '';
+    if (account.source === 'LEGACY') {
+      return;
+    }
+
+    this.isLoadingTransactions = true;
+    this.attendanceService.getUserTransactions(account.id).subscribe({
+      next: (transactions) => {
+        this.userTransactions = transactions || [];
+        this.isLoadingTransactions = false;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        this.isLoadingTransactions = false;
+        this.showMessage(error?.error?.message || 'Could not load compensation history.', true);
+      }
+    });
+  }
+
+  closeUserDetails(): void {
+    this.selectedUser = null;
+    this.userTransactions = [];
+    this.transactionAmount = null;
+    this.transactionDescription = '';
+  }
+
+  recordTransaction(type: CompensationTransactionType): void {
+    if (!this.selectedUser || this.selectedUser.source === 'LEGACY') {
+      return;
+    }
+    const amount = Number(this.transactionAmount);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      this.showMessage('Enter an amount greater than zero.', true);
+      return;
+    }
+    if (!this.transactionDescription.trim()) {
+      this.showMessage('Enter a description for this transaction.', true);
+      return;
+    }
+
+    this.isSavingTransaction = true;
+    this.attendanceService.addUserTransaction(
+      this.selectedUser.id, type, amount, this.transactionDescription.trim()
+    ).subscribe({
+      next: (transaction) => {
+        this.userTransactions = [transaction, ...this.userTransactions];
+        this.transactionAmount = null;
+        this.transactionDescription = '';
+        this.isSavingTransaction = false;
+        this.showMessage(type === 'ADVANCE' ? 'Advance recorded.' : 'Salary payment recorded.', false);
+        this.loadUsers();
+        this.loadActivity();
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        this.isSavingTransaction = false;
+        this.showMessage(error?.error?.message || 'Could not record this transaction.', true);
+      }
+    });
+  }
+
+  loadActivity(): void {
+    this.attendanceService.getAdminActivity().subscribe({
+      next: (response) => {
+        this.activity = response || [];
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.activity = [];
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  saveDailySalary(account: AdminUser): void {
+    const dailySalary = this.dailySalaryDrafts[account.id];
+    if (dailySalary === null || dailySalary === undefined || !Number.isFinite(Number(dailySalary)) || Number(dailySalary) < 0) {
+      this.showMessage('Enter a valid non-negative daily salary.', true);
       return;
     }
 
     this.isSavingSalaryFor = account.id;
-    this.attendanceService.updateUserSalary(account.id, Number(monthlySalary)).subscribe({
+    this.attendanceService.updateUserDailySalary(account.id, Number(dailySalary)).subscribe({
       next: (response) => {
-        account.monthlySalary = response.monthlySalary;
-        this.salaryDrafts[account.id] = response.monthlySalary;
+        account.dailySalary = response.dailySalary;
+        this.dailySalaryDrafts[account.id] = response.dailySalary;
         this.isSavingSalaryFor = null;
-        this.showMessage(`Monthly salary updated for ${account.fullName}.`, false);
-        this.attendanceService.getAdminActivity().subscribe({ next: (items) => this.activity = items || [] });
+        this.showMessage(`Daily salary updated for ${account.fullName}.`, false);
+        this.loadActivity();
       },
       error: (error) => {
         this.isSavingSalaryFor = null;
-        this.showMessage(error?.error?.message || 'Could not update monthly salary.', true);
+        this.showMessage(error?.error?.message || 'Could not update daily salary.', true);
       }
     });
   }
 
   loadLocations(): void {
     this.attendanceService.getLocations().subscribe({
-      next: (response) => this.locations = response || [],
+      next: (response) => {
+        this.locations = response || [];
+        this.cdr.detectChanges();
+      },
       error: (error) => this.showMessage(error?.error?.message || 'Could not load attendance locations.', true)
     });
   }
 
   approveUser(user: AdminUser): void {
     this.isApprovingUserId = user.id;
-    this.attendanceService.approveUser(user.id, user.source || 'USER', this.salaryDrafts[user.id]).subscribe({
+    this.attendanceService.approveUser(user.id, user.source || 'USER', this.dailySalaryDrafts[user.id]).subscribe({
       next: (approvedUser) => {
         user.active = approvedUser.active;
-        user.monthlySalary = approvedUser.monthlySalary;
-        this.salaryDrafts[user.id] = approvedUser.monthlySalary;
+        user.dailySalary = approvedUser.dailySalary;
+        user.monthlyAdvance = approvedUser.monthlyAdvance;
+        this.dailySalaryDrafts[user.id] = approvedUser.dailySalary;
         this.isApprovingUserId = null;
-        this.showMessage(this.salaryDrafts[user.id] === null
+        this.showMessage(this.dailySalaryDrafts[user.id] === null
           ? `${user.fullName} is approved and can now log in.`
-          : `${user.fullName} is approved with the assigned monthly salary.`, false);
+          : `${user.fullName} is approved with the assigned daily salary.`, false);
         this.loadUsers();
-        this.attendanceService.getAdminActivity().subscribe({ next: (items) => this.activity = items || [] });
+        this.loadActivity();
       },
       error: (error) => {
         this.isApprovingUserId = null;
@@ -193,7 +302,7 @@ export class Admin implements OnInit {
         this.showMessage(this.editingLocationId === null ? 'Attendance location added.' : 'Attendance location updated.', false);
         this.resetLocationForm();
         this.loadLocations();
-        this.attendanceService.getAdminActivity().subscribe({ next: (items) => this.activity = items || [] });
+        this.loadActivity();
       },
       error: (error) => {
         this.isSavingLocation = false;
@@ -225,6 +334,7 @@ export class Admin implements OnInit {
   private showMessage(message: string, isError: boolean): void {
     this.message = message;
     this.isError = isError;
+    this.cdr.detectChanges();
   }
 
   private emptyLocationForm() {
