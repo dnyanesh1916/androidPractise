@@ -423,6 +423,133 @@ h2, h3 {
   padding: 18px;
 }
 
+.transaction-history-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.transaction-history-heading .eyebrow {
+  margin-bottom: 4px;
+}
+
+.transaction-totals {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.transaction-total {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.transaction-total span {
+  color: #64748b;
+  font-size: 0.78rem;
+}
+
+.transaction-total strong {
+  overflow-wrap: anywhere;
+  font-size: 0.95rem;
+}
+
+.salary-total strong {
+  color: #166534;
+}
+
+.advance-total strong {
+  color: #b91c1c;
+}
+
+.user-transaction-table-scroll {
+  overflow-x: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+}
+
+.user-transaction-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  text-align: left;
+}
+
+.user-transaction-table th,
+.user-transaction-table td {
+  padding: 11px 12px;
+  border-bottom: 1px solid #e2e8f0;
+  vertical-align: middle;
+}
+
+.user-transaction-table th {
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.user-transaction-table td {
+  color: #334155;
+}
+
+.user-transaction-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.transaction-type {
+  display: inline-block;
+  padding: 5px 8px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.salary-type {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.advance-type {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.user-transaction-table td:last-child {
+  font-weight: 700;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.transaction-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  background: #fff1f2;
+  color: #991b1b;
+  font-size: 0.88rem;
+}
+
+.link-button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
 .card-header-row {
   display: flex;
   justify-content: space-between;

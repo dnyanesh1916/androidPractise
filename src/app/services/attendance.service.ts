@@ -3,6 +3,14 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from './auth.service';
 
+export interface UserCompensationTransaction {
+  id: number;
+  type: 'SALARY_PAYMENT' | 'ADVANCE';
+  amount: number;
+  description: string | null;
+  createdAt: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -24,6 +32,10 @@ export class AttendanceService {
       ...this.sessionOptions,
       params: { year, month }
     });
+  }
+
+  getUserTransactionHistory(userId: number): Observable<UserCompensationTransaction[]> {
+    return this.http.get(`${API_BASE_URL}/api/attendance/user/${userId}/transactions`, this.sessionOptions);
   }
 
   getUsers(): Observable<any> {

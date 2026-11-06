@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { AttendanceService } from '../../services/attendance.service';
+import { AttendanceService, type UserCompensationTransaction } from '../../services/attendance.service';
 import { AuthService } from '../../services/auth.service';
 
 interface AttendanceCalendarDay {
@@ -22,8 +22,11 @@ export class Dashboard implements OnInit {
   user: any = null;
   compensation: any = null;
   attendanceEntries: any[] = [];
+  compensationTransactions: UserCompensationTransaction[] = [];
   isLoadingCompensation = false;
   isLoadingAttendance = false;
+  isLoadingTransactions = false;
+  transactionLoadError = '';
   message = '';
   isError = false;
   currentMonth = this.currentMonthValue();
@@ -31,6 +34,18 @@ export class Dashboard implements OnInit {
   calendarDays: AttendanceCalendarDay[] = [];
   attendanceLoadFailed = false;
   readonly weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+  get totalSalaryPaid(): number {
+    return this.compensationTransactions
+      .filter(transaction => transaction.type === 'SALARY_PAYMENT')
+      .reduce((total, transaction) => total + Number(transaction.amount || 0), 0);
+  }
+
+  get totalAdvancesTaken(): number {
+    return this.compensationTransactions
+      .filter(transaction => transaction.type === 'ADVANCE')
+      .reduce((total, transaction) => total + Number(transaction.amount || 0), 0);
+  }
 
   constructor(
     private authService: AuthService,
@@ -51,6 +66,7 @@ export class Dashboard implements OnInit {
     this.buildAttendanceCalendar();
     this.loadCompensation();
     this.loadAttendance();
+    this.loadTransactions();
   }
 
   loadCompensation(): void {
@@ -85,6 +101,24 @@ export class Dashboard implements OnInit {
         this.buildAttendanceCalendar();
         this.isLoadingAttendance = false;
         this.showMessage(error?.error?.message || 'Could not load attendance history.', true);
+      }
+    });
+  }
+
+  loadTransactions(): void {
+    this.isLoadingTransactions = true;
+    this.transactionLoadError = '';
+    this.attendanceService.getUserTransactionHistory(this.user.userId).subscribe({
+      next: (transactions) => {
+        this.compensationTransactions = transactions;
+        this.isLoadingTransactions = false;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        this.compensationTransactions = [];
+        this.isLoadingTransactions = false;
+        this.transactionLoadError = error?.error?.message || error?.message || 'Could not load compensation transaction history.';
+        this.showMessage(this.transactionLoadError, true);
       }
     });
   }

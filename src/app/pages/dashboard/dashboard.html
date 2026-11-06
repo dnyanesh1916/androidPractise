@@ -74,6 +74,63 @@
     </div>
   </section>
 
+  <section class="entries-card transaction-history-card">
+    <div class="transaction-history-heading">
+      <div>
+        <p class="eyebrow">Compensation history</p>
+        <h3>Salary &amp; advances</h3>
+      </div>
+      <button type="button" class="link-button" (click)="loadTransactions()" [disabled]="isLoadingTransactions">
+        {{ isLoadingTransactions ? 'Refreshing...' : 'Refresh' }}
+      </button>
+    </div>
+
+    <div *ngIf="isLoadingTransactions" class="empty-state">Loading transaction history...</div>
+    <div *ngIf="!isLoadingTransactions && transactionLoadError" class="transaction-error" role="alert">
+      {{ transactionLoadError }}
+      <button type="button" class="link-button" (click)="loadTransactions()">Try again</button>
+    </div>
+    <ng-container *ngIf="!isLoadingTransactions && !transactionLoadError">
+      <div class="transaction-totals">
+        <div class="transaction-total salary-total">
+          <span>Total salary paid</span>
+          <strong>{{ totalSalaryPaid | currency: 'INR':'symbol':'1.0-2' }}</strong>
+        </div>
+        <div class="transaction-total advance-total">
+          <span>Total advances</span>
+          <strong>{{ totalAdvancesTaken | currency: 'INR':'symbol':'1.0-2' }}</strong>
+        </div>
+      </div>
+
+      <div *ngIf="compensationTransactions.length === 0" class="empty-state">
+        No salary or advance transactions have been recorded.
+      </div>
+      <div *ngIf="compensationTransactions.length > 0" class="user-transaction-table-scroll">
+        <table class="user-transaction-table">
+          <thead>
+            <tr><th>Date</th><th>Transaction</th><th>Description</th><th>Amount</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let transaction of compensationTransactions">
+              <td>{{ transaction.createdAt | date: 'medium' }}</td>
+              <td>
+                <span
+                  class="transaction-type"
+                  [class.salary-type]="transaction.type === 'SALARY_PAYMENT'"
+                  [class.advance-type]="transaction.type === 'ADVANCE'"
+                >{{ transaction.type === 'ADVANCE' ? 'Advance taken' : 'Salary paid' }}</span>
+              </td>
+              <td>{{ transaction.description || '—' }}</td>
+              <td [class.amount-negative]="transaction.type === 'ADVANCE'" [class.amount-positive]="transaction.type === 'SALARY_PAYMENT'">
+                {{ transaction.type === 'ADVANCE' ? '−' : '+' }}{{ transaction.amount | currency: 'INR':'symbol':'1.0-2' }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </ng-container>
+  </section>
+
   <section class="entries-card">
     <div class="attendance-heading">
       <div>
