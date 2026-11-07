@@ -78,6 +78,79 @@ p {
   gap: 18px;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-actions button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.admin-details-modal {
+  width: min(620px, calc(100vw - 48px));
+}
+
+.admin-details-section {
+  margin-top: 20px;
+  padding: 16px;
+  border: 1px solid #dce8ee;
+  border-radius: 12px;
+  background: white;
+}
+
+.admin-details-section h3 {
+  margin: 0 0 12px;
+  color: #0f172a;
+}
+
+.admin-details-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+
+.admin-details-list > div {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.7fr) minmax(0, 1.3fr);
+  gap: 12px;
+}
+
+.admin-details-list dt {
+  color: #64748b;
+  font-size: 0.86rem;
+}
+
+.admin-details-list dd {
+  margin: 0;
+  color: #1e293b;
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+
+.sample-label {
+  display: inline-block;
+  margin-left: 6px;
+  color: #64748b;
+  font-size: 0.7rem;
+  white-space: nowrap;
+}
+
+.admin-details-footer {
+  display: grid;
+  gap: 8px;
+  margin-top: 18px;
+  color: #64748b;
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.admin-details-footer strong {
+  color: #475569;
+}
+
 .modal-backdrop {
   position: fixed;
   z-index: 1200;
@@ -810,7 +883,7 @@ p {
 
 .user-table {
   width: 100%;
-  min-width: 1240px;
+  min-width: 1380px;
   border-collapse: collapse;
   font-size: 0.87rem;
 }
@@ -833,6 +906,22 @@ p {
 
 .user-table tbody tr:hover {
   background: #f8fbff;
+}
+
+.monthly-total-row {
+  background: #eef5fb;
+  color: #16344a;
+  font-weight: 500;
+}
+
+.monthly-total-row th,
+.monthly-total-row td {
+  border-top: 2px solid #cbdbe8;
+  color: #0f172a;
+  font-size: 0.87rem;
+  font-weight: 500;
+  letter-spacing: normal;
+  text-transform: none;
 }
 
 .user-cell {
@@ -869,7 +958,9 @@ p {
   min-height: 25px;
   align-items: center;
   padding: 0 9px;
+  border: 0;
   border-radius: 13px;
+  font: inherit;
   font-size: 0.75rem;
   font-weight: 700;
 }
@@ -882,6 +973,18 @@ p {
 .access-pending {
   background: #fff3dc;
   color: #8a570f;
+}
+
+.pending-approval {
+  cursor: pointer;
+}
+
+.pending-approval:hover:not(:disabled) {
+  background: #ffe8b8;
+}
+
+.pending-approval:disabled {
+  cursor: wait;
 }
 
 .actions-heading,
@@ -907,23 +1010,6 @@ p {
   color: #9aabb2;
 }
 
-.salary-form {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.salary-form input {
-  width: 112px;
-  height: 34px;
-  padding: 0 8px;
-  border: 1px solid #cbd8de;
-  border-radius: 5px;
-  color: #29444f;
-  font: inherit;
-  font-size: 0.82rem;
-}
-
 .approval-salary {
   width: 130px;
   height: 34px;
@@ -933,24 +1019,6 @@ p {
   color: #29444f;
   font: inherit;
   font-size: 0.82rem;
-}
-
-.salary-save {
-  min-height: 34px;
-  padding: 0 9px;
-  border: 0;
-  border-radius: 5px;
-  background: #eff6ff;
-  color: #1d4ed8;
-  font: inherit;
-  font-size: 0.78rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.salary-save:disabled {
-  opacity: 0.6;
-  cursor: wait;
 }
 
 .approve-button:disabled {
@@ -1081,6 +1149,11 @@ p {
     justify-content: space-between;
   }
 
+  .header-actions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
   .admin-identity {
     text-align: left;
   }
@@ -1146,6 +1219,10 @@ p {
 
   .modal-finance-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-details-list > div {
+    grid-template-columns: minmax(90px, 0.7fr) minmax(0, 1.3fr);
   }
 
   .transaction-entry {

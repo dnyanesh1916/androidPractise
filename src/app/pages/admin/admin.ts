@@ -7,8 +7,8 @@ import { AuthService } from '../../services/auth.service';
 
 interface AdminUser {
   id: number;
+  username: string;
   fullName: string;
-  email: string;
   role: string;
   profileImage?: string | null;
   dailySalary: number | null;
@@ -65,6 +65,9 @@ export class Admin implements OnInit, OnDestroy {
   locations: AttendanceLocation[] = [];
   activity: any[] = [];
   user: any = null;
+  showAdminDetails = false;
+  isExportingData = false;
+  readonly copyrightYear = new Date().getFullYear();
   activeSection: AdminSection = 'users';
   isLoading = false;
   isSavingLocation = false;
@@ -134,6 +137,24 @@ export class Admin implements OnInit, OnDestroy {
 
   get pendingUsers(): number {
     return this.users.filter(user => user.role === 'USER' && !user.active).length;
+  }
+
+  get monthlyTotals(): {
+    dailySalary: number;
+    workingDays: number;
+    earned: number;
+    paid: number;
+    advance: number;
+    balance: number;
+  } {
+    return this.users.reduce((totals, account) => ({
+      dailySalary: totals.dailySalary + (account.dailySalary || 0),
+      workingDays: totals.workingDays + (account.workingDaysThisMonth || 0),
+      earned: totals.earned + (account.earnedPayThisMonth || 0),
+      paid: totals.paid + (account.salaryPaidThisMonth || 0),
+      advance: totals.advance + (account.monthlyAdvance || 0),
+      balance: totals.balance + (account.totalBalanceThisMonth || 0)
+    }), { dailySalary: 0, workingDays: 0, earned: 0, paid: 0, advance: 0, balance: 0 });
   }
 
   showSection(section: AdminSection): void {
@@ -391,8 +412,11 @@ export class Admin implements OnInit, OnDestroy {
 
   saveDailySalary(account: AdminUser): void {
     const dailySalary = this.dailySalaryDrafts[account.id];
-    if (dailySalary === null || dailySalary === undefined || !Number.isFinite(Number(dailySalary)) || Number(dailySalary) < 0) {
-      this.showMessage('Enter a valid non-negative daily salary.', true);
+    if (dailySalary === null || dailySalary === undefined || !Number.isFinite(Number(dailySalary)) || Number(dailySalary) <= 0) {
+      this.showMessage('Enter a daily salary greater than zero.', true);
+      return;
+    }
+    if (Number(dailySalary) === Number(account.dailySalary)) {
       return;
     }
 
@@ -403,6 +427,7 @@ export class Admin implements OnInit, OnDestroy {
         this.dailySalaryDrafts[account.id] = response.dailySalary;
         this.isSavingSalaryFor = null;
         this.showMessage(`Daily salary updated for ${account.fullName}.`, false);
+        this.loadUsers();
         this.loadActivity();
       },
       error: (error) => {
@@ -423,17 +448,20 @@ export class Admin implements OnInit, OnDestroy {
   }
 
   approveUser(user: AdminUser): void {
+    const dailySalary = this.dailySalaryDrafts[user.id];
+    if (dailySalary === null || dailySalary === undefined || !Number.isFinite(Number(dailySalary)) || Number(dailySalary) <= 0) {
+      this.showMessage('Enter a daily salary greater than zero before approving this user.', true);
+      return;
+    }
     this.isApprovingUserId = user.id;
-    this.attendanceService.approveUser(user.id, user.source || 'USER', this.dailySalaryDrafts[user.id]).subscribe({
+    this.attendanceService.approveUser(user.id, user.source || 'USER', Number(dailySalary)).subscribe({
       next: (approvedUser) => {
         user.active = approvedUser.active;
         user.dailySalary = approvedUser.dailySalary;
         user.monthlyAdvance = approvedUser.monthlyAdvance;
         this.dailySalaryDrafts[user.id] = approvedUser.dailySalary;
         this.isApprovingUserId = null;
-        this.showMessage(this.dailySalaryDrafts[user.id] === null
-          ? `${user.fullName} is approved and can now log in.`
-          : `${user.fullName} is approved with the assigned daily salary.`, false);
+        this.showMessage(`${user.fullName} is approved with the assigned daily salary.`, false);
         this.loadUsers();
         this.loadActivity();
       },
@@ -502,6 +530,62 @@ export class Admin implements OnInit, OnDestroy {
       next: () => this.router.navigateByUrl('/login'),
       error: () => this.router.navigateByUrl('/login')
     });
+  }
+
+  closeAdminDetails(): void {
+    this.showAdminDetails = false;
+  }
+
+  exportDataWorkbook(): void {
+    if (this.isExportingData) {
+      return;
+    }
+
+    this.isExportingData = true;
+    this.attendanceService.exportAdminData().subscribe({
+      next: (file) => {
+        this.downloadWorkbookFile(file);
+        this.isExportingData = false;
+        this.showMessage('Workbook downloaded and saved in the database as the latest export.', false);
+      },
+      error: (error) => {
+        this.isExportingData = false;
+        this.showMessage(this.getRequestErrorMessage(error, 'Could not export database data.'), true);
+      }
+    });
+  }
+
+  downloadStoredWorkbook(): void {
+    if (this.isExportingData) {
+      return;
+    }
+
+    this.isExportingData = true;
+    this.attendanceService.downloadLatestAdminDataExport().subscribe({
+      next: (file) => {
+        this.downloadWorkbookFile(file);
+        this.isExportingData = false;
+        this.showMessage('Saved workbook downloaded from the database.', false);
+      },
+      error: (error) => {
+        this.isExportingData = false;
+        const message = error?.status === 404
+          ? 'No saved workbook exists yet. Use Export Excel to create and store one.'
+          : this.getRequestErrorMessage(error, 'Could not download the saved workbook.');
+        this.showMessage(message, true);
+      }
+    });
+  }
+
+  private downloadWorkbookFile(file: Blob): void {
+    const downloadUrl = URL.createObjectURL(file);
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.download = 'attendease-data.xlsx';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
   }
 
   private showMessage(message: string, isError: boolean): void {

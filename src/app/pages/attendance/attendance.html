@@ -1,15 +1,4 @@
 <div class="dashboard-shell">
-  <!-- <header class="topbar">
-    <div>
-      <p class="eyebrow">Welcome</p>
-      <h2>{{ user?.fullName || 'User' }}</h2>
-    </div>
-    <div class="header-actions">
-      <button class="ghost-button" routerLink="/dashboard">Dashboard</button>
-      <button class="ghost-button" (click)="logout()">Logout</button>
-    </div>
-  </header> -->
-
   <div *ngIf="message" class="alert-banner" [class.success-message]="isSuccess" [class.error-message]="!isSuccess">
     {{ message }}
   </div>

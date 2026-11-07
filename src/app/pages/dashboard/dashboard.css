@@ -472,16 +472,28 @@ h2, h3 {
 }
 
 .user-transaction-table-scroll {
-  overflow-x: auto;
+  max-height: 190px;
+  overflow: auto;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
 }
 
 .user-transaction-table {
   width: 100%;
+  min-width: 520px;
   border-collapse: collapse;
   font-size: 0.82rem;
   text-align: left;
+}
+
+.user-transaction-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.user-transaction-table tbody tr {
+  height: 48px;
 }
 
 .user-transaction-table th,
@@ -489,6 +501,17 @@ h2, h3 {
   padding: 11px 12px;
   border-bottom: 1px solid #e2e8f0;
   vertical-align: middle;
+}
+
+.user-transaction-table td:nth-child(3) {
+  max-width: 180px;
+}
+
+.transaction-description {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .user-transaction-table th {

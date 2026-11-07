@@ -42,7 +42,14 @@ export class AuthService {
       return null;
     }
     const raw = localStorage.getItem('attendease-user');
-    return raw ? JSON.parse(raw) : null;
+    if (!raw) {
+      return null;
+    }
+    const user = JSON.parse(raw);
+    return {
+      ...user,
+      username: user.username || (user.userId ? `user${user.userId}` : '')
+    };
   }
 
   logout(): Observable<void> {

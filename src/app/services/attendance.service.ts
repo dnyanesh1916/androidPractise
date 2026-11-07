@@ -35,7 +35,10 @@ export class AttendanceService {
   }
 
   getUserTransactionHistory(userId: number): Observable<UserCompensationTransaction[]> {
-    return this.http.get(`${API_BASE_URL}/api/attendance/user/${userId}/transactions`, this.sessionOptions);
+    return this.http.get<UserCompensationTransaction[]>(
+      `${API_BASE_URL}/api/attendance/user/${userId}/transactions`,
+      this.sessionOptions
+    );
   }
 
   getUsers(): Observable<any> {
@@ -48,6 +51,20 @@ export class AttendanceService {
 
   getAdminActivity(): Observable<any> {
     return this.http.get(`${API_BASE_URL}/api/admin/activity`, this.sessionOptions);
+  }
+
+  exportAdminData(): Observable<Blob> {
+    return this.http.get(`${API_BASE_URL}/api/admin/export`, {
+      ...this.sessionOptions,
+      responseType: 'blob'
+    });
+  }
+
+  downloadLatestAdminDataExport(): Observable<Blob> {
+    return this.http.get(`${API_BASE_URL}/api/admin/export/latest`, {
+      ...this.sessionOptions,
+      responseType: 'blob'
+    });
   }
 
   getAdminUsers(year: number, month: number): Observable<any> {

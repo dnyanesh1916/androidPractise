@@ -25,7 +25,7 @@
         <div class="user-profile-copy">
           <p class="eyebrow">User profile</p>
           <h3>{{ user?.fullName || 'User' }}</h3>
-          <p>{{ user?.email || 'No email available' }}</p>
+          <p>{{ user?.username || 'No username available' }}</p>
           <span class="status-pill">{{ user?.role || 'USER' }}</span>
         </div>
         <button type="button" class="ghost-button profile-logout" (click)="logout()">Logout</button>
@@ -60,12 +60,16 @@
         <span>Total earned</span>
         <strong>{{ compensation.earnedPayThisMonth === null ? 'Not available' : (compensation.earnedPayThisMonth | currency: 'INR':'symbol':'1.0-2') }}</strong>
       </div>
+      <div class="pay-item">
+        <span>Salary paid this month</span>
+        <strong>{{ (compensation.salaryPaidThisMonth || 0) | currency: 'INR':'symbol':'1.0-2' }}</strong>
+      </div>
       <div
         class="pay-item pay-total"
         [class.negative-total]="compensation.totalBalanceThisMonth < 0"
         [class.positive-total]="compensation.totalBalanceThisMonth > 0"
       >
-        <span>Total balance (earned minus advance)</span>
+        <span>Total balance (earned minus advance plus salary paid)</span>
         <strong
           [class.amount-negative]="compensation.totalBalanceThisMonth < 0"
           [class.amount-positive]="compensation.totalBalanceThisMonth > 0"
@@ -120,7 +124,7 @@
                   [class.advance-type]="transaction.type === 'ADVANCE'"
                 >{{ transaction.type === 'ADVANCE' ? 'Advance taken' : 'Salary paid' }}</span>
               </td>
-              <td>{{ transaction.description || '—' }}</td>
+              <td><span class="transaction-description">{{ transaction.description || '—' }}</span></td>
               <td [class.amount-negative]="transaction.type === 'ADVANCE'" [class.amount-positive]="transaction.type === 'SALARY_PAYMENT'">
                 {{ transaction.type === 'ADVANCE' ? '−' : '+' }}{{ transaction.amount | currency: 'INR':'symbol':'1.0-2' }}
               </td>

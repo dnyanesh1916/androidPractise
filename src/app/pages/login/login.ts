@@ -12,7 +12,7 @@ import { AuthService } from '../../services/auth.service';
 })
 export class Login {
   form = {
-    email: '',
+    username: '',
     password: ''
   };
 
@@ -33,9 +33,16 @@ export class Login {
   }
 
   ngOnInit(): void {
-    const state = (typeof history !== 'undefined' ? (history.state ?? {}) : {}) as { message?: string; isSuccess?: boolean };
+    const state = (typeof history !== 'undefined' ? (history.state ?? {}) : {}) as {
+      message?: string;
+      isSuccess?: boolean;
+      username?: string;
+    };
+    if (state.username) {
+      this.form.username = state.username;
+    }
     if (state.message) {
-      this.showAlert(state.message, Boolean(state.isSuccess));
+      this.showAlert(state.message, state.isSuccess ?? true);
     }
   }
 
@@ -47,8 +54,8 @@ export class Login {
       return;
     }
 
-    if (!this.form.email || !this.form.password) {
-      this.showAlert('Please enter email and password.', false);
+    if (!this.form.username || !this.form.password) {
+      this.showAlert('Please enter your username and password.', false);
       return;
     }
 
@@ -67,12 +74,12 @@ export class Login {
           this.authService.saveUser({
             userId: response.userId,
             fullName: response.fullName,
-            email: response.email,
+            username: response.username || `user${response.userId}`,
             role: response.role,
             profileImage: response.profileImage
           });
 
-          const redirectPath = response.role === 'ADMIN' ? '/admin' : '/dashboard';
+          const redirectPath = response.role === 'ADMIN' ? '/admin' : '/attendance';
           setTimeout(() => {
             this.router.navigateByUrl(redirectPath);
           }, 1200);
@@ -81,7 +88,10 @@ export class Login {
       },
       error: (error) => {
         this.isSubmitting = false;
-        this.showAlert(error?.error?.message || error?.message || 'Login failed. Please try again.', false);
+        const message = error?.status === 0
+          ? 'Unable to connect to the server. Please check that it is running and try again.'
+          : error?.error?.message || 'Login failed. Please try again.';
+        this.showAlert(message, false);
       }
     });
   }

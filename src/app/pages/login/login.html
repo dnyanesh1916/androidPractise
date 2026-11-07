@@ -6,12 +6,12 @@
     </div>
 
     <h1>Welcome back</h1>
-    <p class="subtitle">Sign in to mark attendance and manage your day.</p>
+    <p class="subtitle">Sign in with your User ID. Admins can also use their configured admin email.</p>
 
     <form class="auth-form" (ngSubmit)="submitForm()" #loginForm="ngForm">
       <label>
-        <span>Email</span>
-        <input type="email" name="email" [(ngModel)]="form.email" placeholder="you@company.com" required />
+        <span>User ID or admin email</span>
+        <input type="text" name="username" [(ngModel)]="form.username" placeholder="user1 or admin email" autocomplete="username" required />
       </label>
 
       <label>

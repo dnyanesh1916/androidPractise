@@ -10,9 +10,18 @@
     <div class="header-user">
       <div class="admin-identity">
         <strong>{{ user?.fullName || 'Administrator' }}</strong>
-        <span>{{ user?.email }}</span>
+        <span>{{ user?.username }}</span>
       </div>
-      <button class="logout-button" type="button" (click)="logout()">Sign out</button>
+      <div class="header-actions">
+        <button class="refresh-button" type="button" (click)="showAdminDetails = true">Admin details</button>
+        <!-- <button class="refresh-button" type="button" (click)="exportDataWorkbook()" [disabled]="isExportingData">
+          {{ isExportingData ? 'Preparing...' : 'Export Excel' }}
+        </button>
+        <button class="refresh-button" type="button" (click)="downloadStoredWorkbook()" [disabled]="isExportingData">
+          Download saved Excel
+        </button> -->
+        <button class="logout-button" type="button" (click)="logout()">Sign out</button>
+      </div>
     </div>
   </header>
 
@@ -46,7 +55,7 @@
     </div>
 
     <section class="metrics-grid" aria-label="User overview">
-      <div class="metric-card"><span>Total accounts</span><strong>{{ summary.totalUsers || users.length }}</strong></div>
+      <div class="metric-card"><span>Total accounts</span><strong>{{ users.length }}</strong></div>
       <div class="metric-card metric-pending"><span>Awaiting approval</span><strong>{{ pendingUsers }}</strong></div>
       <div class="metric-card"><span>Present now</span><strong>{{ summary.totalPresent }}</strong></div>
       <div class="metric-card"><span>Late today</span><strong>{{ summary.totalLate }}</strong></div>
@@ -68,14 +77,14 @@
         <table class="user-table">
           <thead>
             <tr>
-              <th>User</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Registered</th>
+              <th>User name</th>
+              <th>UserId</th>
               <th>Daily salary</th>
-              <th>Monthly advance</th>
               <th>Working days</th>
-              <th>Access</th>
+              <th>Total earned</th>
+              <th>Monthly paid</th>
+              <th>Monthly advance</th>
+              <th>Total salary</th>
               <th class="actions-heading">Action</th>
             </tr>
           </thead>
@@ -101,67 +110,67 @@
                   </button>
                   <div *ngIf="hoveredUserId === account.id" class="user-hover-card" role="tooltip">
                     <strong>{{ account.fullName }}</strong>
-                    <span>{{ account.email }}</span>
+                    <span>{{ account.username || 'user' + account.id }}</span>
                     <span>{{ account.active ? 'Approved' : 'Pending approval' }}</span>
-                    <span [class.amount-negative]="account.totalBalanceThisMonth !== null && account.totalBalanceThisMonth < 0"
-                      [class.amount-positive]="account.totalBalanceThisMonth !== null && account.totalBalanceThisMonth > 0">
-                      Balance:
-                      {{ account.totalBalanceThisMonth === null ? 'Not set' : (account.totalBalanceThisMonth | currency: 'INR':'symbol':'1.0-2') }}
-                    </span>
                   </div>
                 </div>
               </td>
-              <td>{{ account.email }}</td>
-              <td><span class="role-label">{{ account.role }}</span></td>
-              <td>{{ account.createdAt ? (account.createdAt | date: 'mediumDate') : 'Legacy record' }}</td>
+              <td>{{ account.username || 'user' + account.id }}</td>
               <td>
-                <ng-container *ngIf="!account.active && account.role === 'USER'; else existingSalary">
-                  <input
-                    class="approval-salary"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    [name]="'approval-daily-salary-' + account.id"
-                    [(ngModel)]="dailySalaryDrafts[account.id]"
-                    [attr.aria-label]="'Optional daily salary for ' + account.fullName"
-                    placeholder="Optional"
-                  />
-                </ng-container>
-                <ng-template #existingSalary>
-                  <form class="salary-form" (ngSubmit)="saveDailySalary(account)">
-                    <input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      [name]="'daily-salary-' + account.id"
-                      [(ngModel)]="dailySalaryDrafts[account.id]"
-                      [attr.aria-label]="'Daily salary for ' + account.fullName"
-                    />
-                    <button type="submit" class="salary-save" [disabled]="isSavingSalaryFor === account.id">
-                      {{ isSavingSalaryFor === account.id ? 'Saving' : 'Save' }}
-                    </button>
-                  </form>
-                </ng-template>
+                <input
+                  class="approval-salary"
+                  type="number"
+                  min="0.01"
+                  step="0.01"
+                  required
+                  [name]="'daily-salary-' + account.id"
+                  [(ngModel)]="dailySalaryDrafts[account.id]"
+                  (blur)="account.active && saveDailySalary(account)"
+                  [disabled]="isSavingSalaryFor === account.id"
+                  [attr.aria-label]="'Daily salary for ' + account.fullName"
+                  placeholder="Required"
+                />
+                <small *ngIf="isSavingSalaryFor === account.id">Saving...</small>
               </td>
-              <td>{{ (account.monthlyAdvance || 0) | currency: 'INR':'symbol':'1.0-2' }}</td>
               <td><strong>{{ account.workingDaysThisMonth }}</strong> days</td>
               <td>
-                <span class="access-status" [class.access-approved]="account.active" [class.access-pending]="!account.active">
-                  {{ account.active ? 'Approved' : 'Pending' }}
-                </span>
+                {{ account.earnedPayThisMonth === null ? 'Not set' : (account.earnedPayThisMonth | currency: 'INR':'symbol':'1.0-2') }}
+              </td>
+              <td>{{ (account.salaryPaidThisMonth || 0) | currency: 'INR':'symbol':'1.0-2' }}</td>
+              <td>{{ (account.monthlyAdvance || 0) | currency: 'INR':'symbol':'1.0-2' }}</td>
+              <td [class.amount-negative]="account.totalBalanceThisMonth !== null && account.totalBalanceThisMonth < 0"
+                  [class.amount-positive]="account.totalBalanceThisMonth !== null && account.totalBalanceThisMonth > 0">
+                {{ account.totalBalanceThisMonth === null ? 'Not set' : (account.totalBalanceThisMonth | currency: 'INR':'symbol':'1.0-2') }}
               </td>
               <td class="actions-cell">
                 <button
-                  *ngIf="!account.active && account.role === 'USER'"
+                  *ngIf="!account.active; else approvedStatus"
                   type="button"
-                  class="approve-button"
+                  class="access-status access-pending pending-approval"
                   (click)="approveUser(account)"
                   [disabled]="isApprovingUserId === account.id"
-                >{{ isApprovingUserId === account.id ? 'Approving...' : 'Approve' }}</button>
-                <span *ngIf="account.active || account.role !== 'USER'" class="no-action">-</span>
+                  [attr.aria-label]="'Approve ' + account.fullName"
+                  title="Click to approve this user"
+                >{{ isApprovingUserId === account.id ? 'Approving...' : 'Pending' }}</button>
+                <ng-template #approvedStatus>
+                  <span class="access-status access-approved">Approved</span>
+                </ng-template>
               </td>
             </tr>
           </tbody>
+          <tfoot>
+            <tr class="monthly-total-row">
+              <th>Total</th>
+              <td>—</td>
+              <td>{{ monthlyTotals.dailySalary | currency: 'INR':'symbol':'1.0-2' }}</td>
+              <td>{{ monthlyTotals.workingDays }} days</td>
+              <td>{{ monthlyTotals.earned | currency: 'INR':'symbol':'1.0-2' }}</td>
+              <td>{{ monthlyTotals.paid | currency: 'INR':'symbol':'1.0-2' }}</td>
+              <td>{{ monthlyTotals.advance | currency: 'INR':'symbol':'1.0-2' }}</td>
+              <td>{{ monthlyTotals.balance | currency: 'INR':'symbol':'1.0-2' }}</td>
+              <td>—</td>
+            </tr>
+          </tfoot>
         </table>
       </div>
     </section>
@@ -277,9 +286,8 @@
           <span class="modal-user-initial">{{ (detailUser.fullName || 'U').charAt(0).toUpperCase() }}</span>
         </ng-template>
         <div>
-          <strong>{{ detailUser.email }}</strong>
-          <span>{{ detailUser.role }} · {{ detailUser.active ? 'Approved' : 'Pending approval' }}</span>
-          <span>Registered {{ detailUser.createdAt ? (detailUser.createdAt | date: 'medium') : 'before record tracking' }}</span>
+          <strong>{{ detailUser.username || 'user' + detailUser.id }}</strong>
+          <span>{{ detailUser.active ? 'Approved' : 'Pending approval' }}</span>
         </div>
       </div>
 
@@ -297,14 +305,14 @@
         <div><span>Daily salary</span><strong>{{ detailUser.dailySalary === null ? 'Not set' : (detailUser.dailySalary | currency: 'INR':'symbol':'1.0-2') }}</strong></div>
         <div><span>Days worked</span><strong>{{ detailUser.workingDaysThisMonth }} / {{ detailUser.scheduledWorkingDaysThisMonth }}</strong></div>        
         <div><span>Total earned</span><strong>{{ detailUser.earnedPayThisMonth === null ? 'Not set' : (detailUser.earnedPayThisMonth | currency: 'INR':'symbol':'1.0-2') }}</strong></div>
-        <!-- <div><span>Salary paid</span><strong>{{ (detailUser.salaryPaidThisMonth || 0) | currency: 'INR':'symbol':'1.0-2' }}</strong></div> -->
+        <div><span>Salary paid this month</span><strong>{{ (detailUser.salaryPaidThisMonth || 0) | currency: 'INR':'symbol':'1.0-2' }}</strong></div>
         <div><span>Advance this month</span><strong>{{ (detailUser.monthlyAdvance || 0) | currency: 'INR':'symbol':'1.0-2' }}</strong></div>
         <div
           class="balance-card"
           [class.negative-total]="detailUser.totalBalanceThisMonth !== null && detailUser.totalBalanceThisMonth < 0"
           [class.positive-total]="detailUser.totalBalanceThisMonth !== null && detailUser.totalBalanceThisMonth > 0"
         >
-          <span>Total balance (earned minus advance)</span>
+          <span>Total balance (earned minus advance plus salary paid)</span>
           <strong
             [class.amount-negative]="detailUser.totalBalanceThisMonth !== null && detailUser.totalBalanceThisMonth < 0"
             [class.amount-positive]="detailUser.totalBalanceThisMonth !== null && detailUser.totalBalanceThisMonth > 0"
@@ -410,8 +418,8 @@
                 <span class="attendance-status" [class.attendance-active]="!entry.checkOutTime">
                   {{ entry.checkOutTime ? 'Present' : 'Checked in' }}
                 </span>
-                <small>In {{ entry.checkInTime | date: 'shortTime' }}</small>
-                <small>{{ entry.checkOutTime ? 'Out ' + (entry.checkOutTime | date: 'shortTime') : 'No checkout' }}</small>
+                <small>In {{ entry.checkInTime | slice: 11:16 }}</small>
+                <small>{{ entry.checkOutTime ? 'Out ' + (entry.checkOutTime | slice: 11:16) : 'No checkout' }}</small>
               </div>
             </div>
           </div>
@@ -424,6 +432,50 @@
           </div>
         </div>
       </section>
+    </section>
+  </div>
+
+  <div *ngIf="showAdminDetails" class="modal-backdrop" (click)="closeAdminDetails()">
+    <section class="user-modal admin-details-modal" role="dialog" aria-modal="true" aria-labelledby="admin-details-title" (click)="$event.stopPropagation()">
+      <header class="modal-header">
+        <div>
+          <p class="eyebrow">Administrator profile</p>
+          <h2 id="admin-details-title">Admin &amp; company details</h2>
+        </div>
+        <button type="button" class="modal-close" aria-label="Close admin details" (click)="closeAdminDetails()">×</button>
+      </header>
+
+      <section class="admin-details-section">
+        <h3>Signed-in admin</h3>
+        <dl class="admin-details-list">
+          <div><dt>Name</dt><dd>{{ user?.fullName || 'Administrator' }}</dd></div>
+          <div><dt>Username</dt><dd>{{ user?.username || 'Not available' }}</dd></div>
+          <div><dt>Role</dt><dd>{{ user?.role || 'ADMIN' }}</dd></div>
+        </dl>
+      </section>
+
+      <section class="admin-details-section">
+        <h3>Company</h3>
+        <dl class="admin-details-list">
+          <div><dt>Name</dt><dd>AttendEase <span class="sample-label">Sample profile</span></dd></div>
+          <div><dt>Business</dt><dd>Attendance and workforce compensation management</dd></div>
+          <div><dt>Website / contact</dt><dd>Not configured</dd></div>
+        </dl>
+      </section>
+
+      <section class="admin-details-section">
+        <h3>Developers</h3>
+        <dl class="admin-details-list">
+          <div><dt>Team</dt><dd>AttendEase Development Team <span class="sample-label">Sample profile</span></dd></div>
+          <div><dt>Role</dt><dd>Product engineering and application development</dd></div>
+          <div><dt>Contact</dt><dd>Not configured</dd></div>
+        </dl>
+      </section>
+
+      <footer class="admin-details-footer">
+        <span>Sample company and developer details; replace with verified information.</span>
+        <strong>© {{ copyrightYear }} AttendEase. All rights reserved.</strong>
+      </footer>
     </section>
   </div>
 </div>

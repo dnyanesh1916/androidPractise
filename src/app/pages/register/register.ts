@@ -15,7 +15,6 @@ export class Register {
 
   form = {
     fullName: '',
-    email: '',
     password: '',
     confirmPassword: ''
   };
@@ -26,6 +25,7 @@ export class Register {
   profileImage = '';
   message = '';
   isSuccess = false;
+  generatedUsername = '';
   private cameraStream: MediaStream | null = null;
 
   constructor(
@@ -124,7 +124,7 @@ export class Register {
 
     this.showAlert('', false);
 
-    if (!this.form.fullName || !this.form.email || !this.form.password || !this.form.confirmPassword) {
+    if (!this.form.fullName || !this.form.password || !this.form.confirmPassword) {
       this.showAlert('Please fill in all fields.', false);
       return;
     }
@@ -153,7 +153,6 @@ export class Register {
 
     const payload = {
       fullName: this.form.fullName.trim(),
-      email: this.form.email.trim(),
       password: this.form.password,
       confirmPassword: this.form.confirmPassword,
       profileImage: this.profileImage
@@ -165,19 +164,25 @@ export class Register {
         const isSuccess = response?.message ? response.message.toLowerCase().includes('success') : true;
 
         this.isSubmitting = false;
+        this.generatedUsername = response?.username || (response?.userId ? `user${response.userId}` : '');
         this.showAlert(backendMessage, isSuccess);
 
         if (isSuccess) {
           this.form = {
             fullName: '',
-            email: '',
             password: '',
             confirmPassword: ''
           };
           this.profileImage = '';
 
           setTimeout(() => {
-            this.router.navigateByUrl('/login');
+            this.router.navigateByUrl('/login', {
+              state: {
+                message: backendMessage,
+                isSuccess: true,
+                username: this.generatedUsername
+              }
+            });
           }, 1200);
         }
       },
