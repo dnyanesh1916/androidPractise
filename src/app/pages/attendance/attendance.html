@@ -1,5 +1,6 @@
 <div class="dashboard-shell">
-  <div *ngIf="message" class="alert-banner" [class.success-message]="isSuccess" [class.error-message]="!isSuccess">
+  <div *ngIf="message" class="alert-banner" [class.success-message]="isSuccess" [class.error-message]="!isSuccess"
+       role="alert" aria-live="assertive">
     {{ message }}
   </div>
 
@@ -13,9 +14,28 @@
 
   <section class="location-card">
     <div class="card-header-row">
-      <span>Location</span>
+      <span>Choose your work location</span>
       <button class="link-button" (click)="requestLocation()">Allow location</button>
     </div>
+    <label class="work-location-select">
+      <span>Attendance location</span>
+      <select name="attendanceLocation" [(ngModel)]="selectedLocationId">
+        <option [ngValue]="null">Select a location</option>
+        <option *ngFor="let location of attendanceLocations" [ngValue]="location.id">
+          {{ location.name }}
+        </option>
+      </select>
+    </label>
+    <p *ngIf="needsLocationPermission" class="location-permission-alert" role="alert">
+      Please allow location access before marking attendance.
+    </p>
+    <p *ngIf="selectedLocation" class="selected-location-details">
+      <strong>{{ selectedLocation.name }}</strong>
+      <span>{{ selectedLocation.address || 'No address provided' }}</span>
+      <span>Coordinates: {{ selectedLocation.latitude }}, {{ selectedLocation.longitude }}</span>
+      <span>Allowed check-in radius: {{ selectedLocation.radiusMeters }} m</span>
+    </p>
+    <p *ngIf="attendanceLocations.length === 0">No active attendance locations are available. Contact your administrator.</p>
     <p>{{ locationText }}</p>
   </section>
 

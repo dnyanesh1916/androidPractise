@@ -25,7 +25,8 @@
     </div>
   </header>
 
-  <div *ngIf="message" class="notice" [class.notice-error]="isError" [class.notice-success]="!isError" role="status">
+  <div *ngIf="message" class="notice" [class.notice-error]="isError" [class.notice-success]="!isError"
+       [attr.role]="isError ? 'alert' : 'status'" [attr.aria-live]="isError ? 'assertive' : 'polite'">
     {{ message }}
   </div>
 
@@ -50,22 +51,41 @@
           <span>Attendance month</span>
           <input type="month" name="attendanceMonth" [(ngModel)]="selectedMonth" (ngModelChange)="onMonthChanged()" />
         </label>
+        <label class="month-filter">
+          <span>Allowed location</span>
+          <select name="attendanceLocation" [(ngModel)]="selectedLocationName" (ngModelChange)="onLocationChanged()">
+            <option [ngValue]="null">All locations</option>
+            <option *ngFor="let location of activeLocations" [ngValue]="location.name">{{ location.name }}</option>
+          </select>
+        </label>
         <button type="button" class="refresh-button" (click)="loadData()">Refresh data</button>
       </div>
     </div>
 
     <section class="metrics-grid" aria-label="User overview">
-      <div class="metric-card"><span>Total accounts</span><strong>{{ users.length }}</strong></div>
+      <div class="metric-card">
+        <span>{{ selectedLocationName ? 'Users at location' : 'Total accounts' }}</span>
+        <strong>{{ users.length }}</strong>
+      </div>
       <div class="metric-card metric-pending"><span>Awaiting approval</span><strong>{{ pendingUsers }}</strong></div>
-      <div class="metric-card"><span>Present now</span><strong>{{ summary.totalPresent }}</strong></div>
-      <div class="metric-card"><span>Late today</span><strong>{{ summary.totalLate }}</strong></div>
+      <ng-container *ngIf="!selectedLocationName; else locationMetrics">
+        <div class="metric-card"><span>Present now</span><strong>{{ summary.totalPresent }}</strong></div>
+        <div class="metric-card"><span>Late today</span><strong>{{ summary.totalLate }}</strong></div>
+      </ng-container>
+      <ng-template #locationMetrics>
+        <div class="metric-card"><span>Working days at location</span><strong>{{ monthlyTotals.workingDays }}</strong></div>
+        <div class="metric-card"><span>Earned at location</span><strong>{{ monthlyTotals.earned | currency: 'INR':'symbol':'1.0-2' }}</strong></div>
+      </ng-template>
     </section>
 
     <section class="panel-card">
       <div class="panel-heading">
         <div>
           <h3>Account directory</h3>
-          <p>Passwords are never shown in the admin interface.</p>
+          <p *ngIf="!selectedLocationName">Passwords are never shown in the admin interface.</p>
+          <p *ngIf="selectedLocationName">
+            Working days and earned pay use attendance within {{ selectedLocationName }}. Payments and advances remain whole-month totals.
+          </p>
         </div>
         <span class="record-count">{{ users.length }} records</span>
       </div>
@@ -79,6 +99,7 @@
             <tr>
               <th>User name</th>
               <th>UserId</th>
+              <th>Work location</th>
               <th>Daily salary</th>
               <th>Working days</th>
               <th>Total earned</th>
@@ -116,6 +137,7 @@
                 </div>
               </td>
               <td>{{ account.username || 'user' + account.id }}</td>
+              <td>{{ account.locationName || '—' }}</td>
               <td>
                 <input
                   class="approval-salary"
@@ -125,12 +147,16 @@
                   required
                   [name]="'daily-salary-' + account.id"
                   [(ngModel)]="dailySalaryDrafts[account.id]"
+                  (ngModelChange)="clearApprovalSalaryError(account.id)"
                   (blur)="account.active && saveDailySalary(account)"
                   [disabled]="isSavingSalaryFor === account.id"
                   [attr.aria-label]="'Daily salary for ' + account.fullName"
                   placeholder="Required"
                 />
                 <small *ngIf="isSavingSalaryFor === account.id">Saving...</small>
+                <small *ngIf="approvalSalaryErrorFor === account.id" class="salary-validation-error" role="alert">
+                  Daily salary is mandatory.
+                </small>
               </td>
               <td><strong>{{ account.workingDaysThisMonth }}</strong> days</td>
               <td>
@@ -161,6 +187,7 @@
           <tfoot>
             <tr class="monthly-total-row">
               <th>Total</th>
+              <td>—</td>
               <td>—</td>
               <td>{{ monthlyTotals.dailySalary | currency: 'INR':'symbol':'1.0-2' }}</td>
               <td>{{ monthlyTotals.workingDays }} days</td>
@@ -420,6 +447,7 @@
                 </span>
                 <small>In {{ entry.checkInTime | slice: 11:16 }}</small>
                 <small>{{ entry.checkOutTime ? 'Out ' + (entry.checkOutTime | slice: 11:16) : 'No checkout' }}</small>
+                <small>Location: {{ entry.locationName || 'Not recorded' }}</small>
               </div>
             </div>
           </div>

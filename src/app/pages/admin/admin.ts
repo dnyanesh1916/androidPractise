@@ -11,6 +11,7 @@ interface AdminUser {
   fullName: string;
   role: string;
   profileImage?: string | null;
+  locationName?: string | null;
   dailySalary: number | null;
   monthlyAdvance: number | null;
   workingDaysThisMonth: number;
@@ -38,6 +39,7 @@ interface AdminAttendanceEntry {
   status: string;
   checkInTime: string;
   checkOutTime: string | null;
+  locationName: string | null;
 }
 
 interface AdminAttendanceCalendarDay {
@@ -91,12 +93,14 @@ export class Admin implements OnInit, OnDestroy {
   transactionDescription = '';
   dailySalaryDrafts: Record<number, number | null> = {};
   selectedMonth = this.currentMonthValue();
+  selectedLocationName: string | null = null;
   message = '';
   isError = false;
+  approvalSalaryErrorFor: number | null = null;
   editingLocationId: number | null = null;
   locationForm = this.emptyLocationForm();
   private userRefreshTimer: number | null = null;
-  private isLoadingUsers = false;
+  private userLoadGeneration = 0;
 
   constructor(
     private attendanceService: AttendanceService,
@@ -137,6 +141,10 @@ export class Admin implements OnInit, OnDestroy {
 
   get pendingUsers(): number {
     return this.users.filter(user => user.role === 'USER' && !user.active).length;
+  }
+
+  get activeLocations(): AttendanceLocation[] {
+    return this.locations.filter(location => location.active);
   }
 
   get monthlyTotals(): {
@@ -198,24 +206,25 @@ export class Admin implements OnInit, OnDestroy {
   }
 
   loadUsers(): void {
-    if (this.isLoadingUsers) {
-      return;
-    }
-    this.isLoadingUsers = true;
+    const requestGeneration = ++this.userLoadGeneration;
     const [year, month] = this.selectedMonth.split('-').map(Number);
-    this.attendanceService.getAdminUsers(year, month).subscribe({
+    this.attendanceService.getAdminUsers(year, month, this.selectedLocationName).subscribe({
       next: (response) => {
+        if (requestGeneration !== this.userLoadGeneration) {
+          return;
+        }
         this.users = response || [];
         this.dailySalaryDrafts = Object.fromEntries(this.users.map(account => [account.id, account.dailySalary]));
         if (this.selectedUser) {
           this.selectedUser = this.users.find(account => account.id === this.selectedUser?.id) || this.selectedUser;
         }
-        this.isLoadingUsers = false;
         this.isLoading = false;
         this.cdr.detectChanges();
       },
       error: (error) => {
-        this.isLoadingUsers = false;
+        if (requestGeneration !== this.userLoadGeneration) {
+          return;
+        }
         this.isLoading = false;
         this.showMessage(error?.error?.message || 'Could not load registered users.', true);
       }
@@ -224,6 +233,16 @@ export class Admin implements OnInit, OnDestroy {
 
   onMonthChanged(): void {
     this.loadUsers();
+  }
+
+  onLocationChanged(): void {
+    this.loadUsers();
+  }
+
+  clearApprovalSalaryError(userId: number): void {
+    if (this.approvalSalaryErrorFor === userId) {
+      this.approvalSalaryErrorFor = null;
+    }
   }
 
   openUserDetails(account: AdminUser): void {
@@ -441,6 +460,11 @@ export class Admin implements OnInit, OnDestroy {
     this.attendanceService.getLocations().subscribe({
       next: (response) => {
         this.locations = response || [];
+        if (this.selectedLocationName !== null
+            && !this.activeLocations.some(location => location.name === this.selectedLocationName)) {
+          this.selectedLocationName = null;
+          this.loadUsers();
+        }
         this.cdr.detectChanges();
       },
       error: (error) => this.showMessage(error?.error?.message || 'Could not load attendance locations.', true)
@@ -448,13 +472,18 @@ export class Admin implements OnInit, OnDestroy {
   }
 
   approveUser(user: AdminUser): void {
-    const dailySalary = this.dailySalaryDrafts[user.id];
-    if (dailySalary === null || dailySalary === undefined || !Number.isFinite(Number(dailySalary)) || Number(dailySalary) <= 0) {
-      this.showMessage('Enter a daily salary greater than zero before approving this user.', true);
+    const salaryValue = this.dailySalaryDrafts[user.id];
+    const dailySalary = salaryValue === null || salaryValue === undefined || String(salaryValue).trim() === ''
+      ? Number.NaN
+      : Number(salaryValue);
+    if (!Number.isFinite(dailySalary) || dailySalary <= 0) {
+      this.approvalSalaryErrorFor = user.id;
+      this.showMessage('Daily salary is mandatory. Enter an amount greater than zero before approving this user.', true);
       return;
     }
+    this.approvalSalaryErrorFor = null;
     this.isApprovingUserId = user.id;
-    this.attendanceService.approveUser(user.id, user.source || 'USER', Number(dailySalary)).subscribe({
+    this.attendanceService.approveUser(user.id, user.source || 'USER', dailySalary).subscribe({
       next: (approvedUser) => {
         user.active = approvedUser.active;
         user.dailySalary = approvedUser.dailySalary;
@@ -501,6 +530,7 @@ export class Admin implements OnInit, OnDestroy {
         this.showMessage(this.editingLocationId === null ? 'Attendance location added.' : 'Attendance location updated.', false);
         this.resetLocationForm();
         this.loadLocations();
+        this.loadUsers();
         this.loadActivity();
       },
       error: (error) => {

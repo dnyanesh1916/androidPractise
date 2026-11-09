@@ -728,6 +728,14 @@ p {
   color: #9e3829;
 }
 
+.salary-validation-error {
+  display: block;
+  margin-top: 5px;
+  color: #b42318;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
 .section-tabs {
   display: flex;
   gap: 8px;
@@ -799,7 +807,8 @@ p {
   font-weight: 700;
 }
 
-.month-filter input {
+.month-filter input,
+.month-filter select {
   min-height: 38px;
   padding: 0 10px;
   border: 1px solid #cbd8de;
@@ -1197,6 +1206,7 @@ p {
   }
 
   .month-filter input,
+  .month-filter select,
   .refresh-button {
     width: 100%;
   }

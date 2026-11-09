@@ -11,6 +11,16 @@ export interface UserCompensationTransaction {
   createdAt: string;
 }
 
+export interface AttendanceLocationInfo {
+  id: number;
+  name: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  radiusMeters: number;
+  active: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -21,6 +31,10 @@ export class AttendanceService {
 
   markAttendance(payload: any): Observable<any> {
     return this.http.post(`${API_BASE_URL}/api/attendance/mark`, payload, this.sessionOptions);
+  }
+
+  getAvailableAttendanceLocations(): Observable<AttendanceLocationInfo[]> {
+    return this.http.get<AttendanceLocationInfo[]>(`${API_BASE_URL}/api/attendance/locations`, this.sessionOptions);
   }
 
   getUserAttendance(userId: number): Observable<any> {
@@ -67,10 +81,10 @@ export class AttendanceService {
     });
   }
 
-  getAdminUsers(year: number, month: number): Observable<any> {
+  getAdminUsers(year: number, month: number, locationName: string | null = null): Observable<any> {
     return this.http.get(`${API_BASE_URL}/api/admin/users`, {
       ...this.sessionOptions,
-      params: { year, month }
+      params: locationName ? { year, month, locationName } : { year, month }
     });
   }
 

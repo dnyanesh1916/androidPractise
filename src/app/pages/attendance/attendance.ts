@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { AttendanceService } from '../../services/attendance.service';
+import { AttendanceLocationInfo, AttendanceService } from '../../services/attendance.service';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -15,7 +15,10 @@ export class AttendancePage implements OnInit, OnDestroy {
   @ViewChild('cameraVideo') cameraVideo?: ElementRef<HTMLVideoElement>;
 
   user: any = null;
+  attendanceLocations: AttendanceLocationInfo[] = [];
+  selectedLocationId: number | null = null;
   locationText = 'Waiting for location...';
+  needsLocationPermission = false;
   attendanceStatus = 'Not yet marked';
   faceData = '';
   latitude: number | null = null;
@@ -56,6 +59,7 @@ export class AttendancePage implements OnInit, OnDestroy {
       return;
     }
 
+    this.loadLocations();
     this.loadTodayAttendance();
   }
 
@@ -68,6 +72,10 @@ export class AttendancePage implements OnInit, OnDestroy {
     this.attendanceService.getUserAttendance(this.user.userId).subscribe({
       next: (response) => {
         this.todayEntries = response || [];
+        const openEntry = this.todayEntries.find(entry => !entry.checkOutTime && entry.locationId);
+        if (openEntry) {
+          this.selectedLocationId = openEntry.locationId;
+        }
         this.isLoading = false;
         this.cdr.detectChanges();
       },
@@ -77,6 +85,24 @@ export class AttendancePage implements OnInit, OnDestroy {
         this.showAlert('Could not load attendance history.', false);
       }
     });
+  }
+
+  loadLocations(): void {
+    this.attendanceService.getAvailableAttendanceLocations().subscribe({
+      next: (locations) => {
+        this.attendanceLocations = locations || [];
+        if (this.selectedLocationId !== null
+            && !this.attendanceLocations.some(location => location.id === this.selectedLocationId)) {
+          this.selectedLocationId = null;
+        }
+        this.cdr.detectChanges();
+      },
+      error: () => this.showAlert('Could not load attendance locations. Please try again.', false)
+    });
+  }
+
+  get selectedLocation(): AttendanceLocationInfo | null {
+    return this.attendanceLocations.find(location => location.id === this.selectedLocationId) || null;
   }
 
   requestLocation(): void {
@@ -90,10 +116,12 @@ export class AttendancePage implements OnInit, OnDestroy {
       (position) => {
         this.latitude = position.coords.latitude;
         this.longitude = position.coords.longitude;
+        this.needsLocationPermission = false;
         this.locationText = `Lat: ${position.coords.latitude.toFixed(4)} | Lng: ${position.coords.longitude.toFixed(4)}`;
         this.showAlert('Location access granted successfully.', true);
       },
       () => {
+        this.needsLocationPermission = true;
         this.locationText = 'Location permission denied';
         this.showAlert('Location permission denied. Please allow location access.', false);
       }
@@ -197,8 +225,14 @@ export class AttendancePage implements OnInit, OnDestroy {
     }
 
     if (this.latitude === null || this.longitude === null) {
+      this.needsLocationPermission = true;
       this.locationText = 'Please allow location access before marking attendance.';
       this.showAlert('Please allow location access before marking attendance.', false);
+      return;
+    }
+
+    if (this.selectedLocationId === null) {
+      this.showAlert('Select a work location before marking attendance.', false);
       return;
     }
 
@@ -212,6 +246,7 @@ export class AttendancePage implements OnInit, OnDestroy {
 
     this.attendanceService.markAttendance({
       userId: this.user.userId,
+      locationId: this.selectedLocationId,
       latitude: this.latitude,
       longitude: this.longitude,
       attendanceType: type,
