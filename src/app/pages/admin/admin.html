@@ -39,14 +39,14 @@
     </button>
   </nav>
 
-  <main *ngIf="activeSection === 'users'" class="section-content">
+  <main *ngIf="activeSection === 'users'" class="section-content people-access-section">
     <div class="section-heading">
       <div>
         <p class="eyebrow">People and access</p>
         <h2>Registered users</h2>
         <p>Review submitted profiles and approve access to attendance.</p>
       </div>
-      <div class="heading-tools">
+      <div class="heading-tools people-filter-bar">
         <label class="month-filter">
           <span>Attendance month</span>
           <input type="month" name="attendanceMonth" [(ngModel)]="selectedMonth" (ngModelChange)="onMonthChanged()" />
@@ -63,31 +63,64 @@
     </div>
 
     <section class="metrics-grid" aria-label="User overview">
-      <div class="metric-card">
+      <div class="metric-card metric-accounts">
+        <span class="metric-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false"><path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M10 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM20 8v6M23 11h-6" /></svg>
+        </span>
         <span>{{ selectedLocationName ? 'Users at location' : 'Total accounts' }}</span>
         <strong>{{ users.length }}</strong>
       </div>
-      <div class="metric-card metric-pending"><span>Awaiting approval</span><strong>{{ pendingUsers }}</strong></div>
+      <div class="metric-card metric-pending">
+        <span class="metric-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
+        </span>
+        <span>Awaiting approval</span><strong>{{ pendingUsers }}</strong>
+      </div>
       <ng-container *ngIf="!selectedLocationName; else locationMetrics">
-        <div class="metric-card"><span>Present now</span><strong>{{ summary.totalPresent }}</strong></div>
-        <div class="metric-card"><span>Late today</span><strong>{{ summary.totalLate }}</strong></div>
+        <div class="metric-card metric-present">
+          <span class="metric-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false"><path d="m5 12 4 4L19 6" /></svg>
+          </span>
+          <span>Present now</span><strong>{{ summary.totalPresent }}</strong>
+        </div>
+        <div class="metric-card metric-late">
+          <span class="metric-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
+          </span>
+          <span>Late today</span><strong>{{ summary.totalLate }}</strong>
+        </div>
       </ng-container>
       <ng-template #locationMetrics>
-        <div class="metric-card"><span>Working days at location</span><strong>{{ monthlyTotals.workingDays }}</strong></div>
-        <div class="metric-card"><span>Earned at location</span><strong>{{ monthlyTotals.earned | currency: 'INR':'symbol':'1.0-2' }}</strong></div>
+        <div class="metric-card metric-present">
+          <span class="metric-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false"><path d="M4 19V5M4 19h17M8 15v-4M13 15V8M18 15V5" /></svg>
+          </span>
+          <span>Working days at location</span><strong>{{ monthlyTotals.workingDays }}</strong>
+        </div>
+        <div class="metric-card metric-accounts">
+          <span class="metric-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>
+          </span>
+          <span>Earned at location</span><strong>{{ monthlyTotals.earned | currency: 'INR':'symbol':'1.0-2' }}</strong>
+        </div>
       </ng-template>
     </section>
 
-    <section class="panel-card">
-      <div class="panel-heading">
+    <section class="panel-card account-directory-card">
+      <div class="panel-heading account-directory-heading">
         <div>
           <h3>Account directory</h3>
-          <p *ngIf="!selectedLocationName">Passwords are never shown in the admin interface.</p>
+          <p *ngIf="!selectedLocationName" class="directory-security-note">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M7 10V7a5 5 0 0 1 10 0v3M5 10h14v11H5zM12 14v3" />
+            </svg>
+            <span>Passwords are never shown in the admin interface.</span>
+          </p>
           <p *ngIf="selectedLocationName">
             Working days and earned pay use attendance within {{ selectedLocationName }}. Payments and advances remain whole-month totals.
           </p>
         </div>
-        <span class="record-count">{{ users.length }} records</span>
+        <span class="record-count">{{ users.length }} users</span>
       </div>
 
       <div *ngIf="isLoading" class="empty-state">Loading user records...</div>
@@ -98,14 +131,14 @@
           <thead>
             <tr>
               <th>User name</th>
-              <th>UserId</th>
+              <th>User ID</th>
               <th>Work location</th>
               <th>Daily salary</th>
               <th>Working days</th>
               <th>Total earned</th>
               <th>Monthly paid</th>
               <th>Monthly advance</th>
-              <th>Total salary</th>
+              <th>Balance this month</th>
               <th class="actions-heading">Action</th>
             </tr>
           </thead>
@@ -493,43 +526,80 @@
 
   <div *ngIf="showAdminDetails" class="modal-backdrop" (click)="closeAdminDetails()">
     <section class="user-modal admin-details-modal" role="dialog" aria-modal="true" aria-labelledby="admin-details-title" (click)="$event.stopPropagation()">
-      <header class="modal-header">
-        <div>
-          <p class="eyebrow">Administrator profile</p>
-          <h2 id="admin-details-title">Admin &amp; company details</h2>
+      <header class="admin-details-header">
+        <div class="admin-details-heading">
+          <span class="admin-details-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" />
+              <path d="M4.5 21a7.5 7.5 0 0 1 15 0" />
+            </svg>
+          </span>
+          <div>
+            <p class="eyebrow">Workspace profile</p>
+            <h2 id="admin-details-title">Admin details</h2>
+            <p class="admin-details-subtitle">A quick overview of your account and AttendEase workspace.</p>
+          </div>
         </div>
         <button type="button" class="modal-close" aria-label="Close admin details" (click)="closeAdminDetails()">×</button>
       </header>
 
-      <section class="admin-details-section">
-        <h3>Signed-in admin</h3>
-        <dl class="admin-details-list">
-          <div><dt>Name</dt><dd>{{ user?.fullName || 'Administrator' }}</dd></div>
-          <div><dt>Username</dt><dd>{{ user?.username || 'Not available' }}</dd></div>
-          <div><dt>Role</dt><dd>{{ user?.role || 'ADMIN' }}</dd></div>
-        </dl>
+      <section class="admin-profile-card" aria-label="Signed-in administrator">
+        <span class="admin-profile-avatar">{{ (user?.fullName || 'Administrator').charAt(0).toUpperCase() }}</span>
+        <div class="admin-profile-copy">
+          <span class="admin-profile-label">Signed in as</span>
+          <strong>{{ user?.fullName || 'Administrator' }}</strong>
+          <span class="admin-profile-username">{{ user?.username || 'Not available' }}</span>
+        </div>
+        <span class="admin-role-pill">{{ user?.role || 'ADMIN' }}</span>
       </section>
 
-      <section class="admin-details-section">
-        <h3>Company</h3>
-        <dl class="admin-details-list">
-          <div><dt>Name</dt><dd>AttendEase <span class="sample-label">Sample profile</span></dd></div>
-          <div><dt>Business</dt><dd>Attendance and workforce compensation management</dd></div>
-          <div><dt>Website / contact</dt><dd>Not configured</dd></div>
-        </dl>
-      </section>
+      <div class="admin-details-grid">
+        <section class="admin-details-section admin-company-card">
+          <div class="admin-info-heading">
+            <span class="admin-info-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false">
+                <path d="M3 21h18M5 21V7l7-4 7 4v14M9 10h.01M15 10h.01M9 14h.01M15 14h.01M10 21v-3h4v3" />
+              </svg>
+            </span>
+            <div>
+              <p class="eyebrow">Organization</p>
+              <h3>Company</h3>
+            </div>
+          </div>
+          <dl class="admin-details-list">
+            <div><dt>Name</dt><dd>AttendEase <span class="sample-label">Sample profile</span></dd></div>
+            <div><dt>Business</dt><dd>Attendance and workforce compensation management</dd></div>
+            <div><dt>Website / contact</dt><dd>Not configured</dd></div>
+          </dl>
+        </section>
 
-      <section class="admin-details-section">
-        <h3>Developers</h3>
-        <dl class="admin-details-list">
-          <div><dt>Team</dt><dd>AttendEase Development Team <span class="sample-label">Sample profile</span></dd></div>
-          <div><dt>Role</dt><dd>Product engineering and application development</dd></div>
-          <div><dt>Contact</dt><dd>Not configured</dd></div>
-        </dl>
-      </section>
+        <section class="admin-details-section admin-developer-card">
+          <div class="admin-info-heading">
+            <span class="admin-info-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false">
+                <path d="m8 8-4 4 4 4M16 8l4 4-4 4M14 5l-4 14" />
+              </svg>
+            </span>
+            <div>
+              <p class="eyebrow">Product team</p>
+              <h3>Developers</h3>
+            </div>
+          </div>
+          <dl class="admin-details-list">
+            <div><dt>Team</dt><dd>AttendEase Development Team <span class="sample-label">Sample profile</span></dd></div>
+            <div><dt>Role</dt><dd>Product engineering and application development</dd></div>
+            <div><dt>Contact</dt><dd>Not configured</dd></div>
+          </dl>
+        </section>
+      </div>
 
       <footer class="admin-details-footer">
-        <span>Sample company and developer details; replace with verified information.</span>
+        <span class="admin-details-note">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M12 11v5M12 8h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+          </svg>
+          Sample organization and team information. Replace with verified details when available.
+        </span>
         <strong>© {{ copyrightYear }} AttendEase. All rights reserved.</strong>
       </footer>
     </section>

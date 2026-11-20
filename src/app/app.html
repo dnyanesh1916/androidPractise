@@ -4,15 +4,21 @@
 
 <nav class="bottom-nav" [class.admin-hidden]="isAdminRoute" aria-label="Main navigation">
 	<a *ngIf="!isLoggedIn" routerLink="/register" routerLinkActive="active" ariaCurrentWhenActive="page">
-		<span class="nav-icon" aria-hidden="true">+</span>
+		<span class="nav-icon" aria-hidden="true">
+			<svg viewBox="0 0 24 24" focusable="false"><path d="M12 5v14M5 12h14" /></svg>
+		</span>
 		<span>Register</span>
 	</a>
 	<a *ngIf="!isLoggedIn" routerLink="/login" routerLinkActive="active" ariaCurrentWhenActive="page">
-		<span class="nav-icon" aria-hidden="true">&gt;</span>
+		<span class="nav-icon" aria-hidden="true">
+			<svg viewBox="0 0 24 24" focusable="false"><path d="M14 5l7 7-7 7M21 12H9M9 5H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h4" /></svg>
+		</span>
 		<span>Login</span>
 	</a>
 	<a *ngIf="isLoggedIn" routerLink="/attendance" routerLinkActive="active" ariaCurrentWhenActive="page">
-		<span class="nav-icon" aria-hidden="true">&#10003;</span>
+		<span class="nav-icon" aria-hidden="true">
+			<svg viewBox="0 0 24 24" focusable="false"><path d="M20 6 9 17l-5-5" /></svg>
+		</span>
 		<span>Attendance</span>
 	</a>
 	<a *ngIf="isLoggedIn" routerLink="/dashboard" routerLinkActive="active" ariaCurrentWhenActive="page">

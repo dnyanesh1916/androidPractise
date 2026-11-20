@@ -2,9 +2,9 @@
   display: block;
   min-height: var(--app-page-height, calc(100dvh - 85px));
   box-sizing: border-box;
-  background: linear-gradient(135deg, #eff6ff, #f8fafc 60%, #e2e8f0);
+  background: var(--app-page-bg);
   padding: 24px 16px;
-  color: #0f172a;
+  color: var(--app-ink);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
@@ -23,10 +23,10 @@
 .entries-card,
 .user-card,
 .pay-card {
-  background: white;
-  border: 1px solid #e2ebff;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
   border-radius: 20px;
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 8px 24px rgba(23, 36, 59, 0.04);
 }
 
 .topbar {
@@ -41,12 +41,12 @@
   font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #64748b;
+  color: var(--app-muted);
 }
 
 h2, h3 {
   margin: 0;
-  color: #0f172a;
+  color: var(--app-ink);
 }
 
 .ghost-button,
@@ -61,8 +61,8 @@ h2, h3 {
 
 .ghost-button,
 .link-button {
-  background: #eff6ff;
-  color: #1d4ed8;
+  background: var(--app-brand-soft);
+  color: var(--app-brand-strong);
   padding: 10px 14px;
 }
 
@@ -74,13 +74,13 @@ h2, h3 {
 }
 
 .success-message {
-  background: #dcfce7;
-  color: #166534;
+  background: var(--app-success-bg);
+  color: var(--app-success);
 }
 
 .error-message {
-  background: #fee2e2;
-  color: #991b1b;
+  background: var(--app-danger-bg);
+  color: var(--app-danger);
 }
 
 .status-card,
@@ -100,7 +100,7 @@ h2, h3 {
 
 .user-summary-row p {
   margin: 6px 0 0;
-  color: #475569;
+  color: var(--app-muted);
 }
 
 .user-profile-details {
@@ -138,7 +138,7 @@ h2, h3 {
 
 .pay-card-heading h3 {
   margin: 0;
-  color: #0f172a;
+  color: var(--app-ink);
 }
 
 .pay-card-heading .eyebrow {
@@ -157,19 +157,19 @@ h2, h3 {
   flex-direction: column;
   gap: 6px;
   padding: 12px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--app-border);
   border-radius: 12px;
   background: #f8fafc;
 }
 
 .pay-item span {
-  color: #64748b;
+  color: var(--app-muted);
   font-size: 0.78rem;
 }
 
 .pay-item strong {
   overflow-wrap: anywhere;
-  color: #0f172a;
+  color: var(--app-ink);
   font-size: 0.95rem;
 }
 
@@ -184,26 +184,26 @@ h2, h3 {
 }
 
 .pay-total strong {
-  color: #0f172a;
+  color: var(--app-ink);
 }
 
 .pay-total.negative-total {
-  border-color: #fecaca;
-  background: #fff1f2;
+  border-color: #ffd2d7;
+  background: var(--app-danger-bg);
 }
 
 .pay-total.negative-total strong,
 .amount-negative {
-  color: #b91c1c;
+  color: var(--app-danger);
 }
 
 .pay-total.positive-total {
-  border-color: #b7dfc8;
-  background: #eef8f1;
+  border-color: #bce7cf;
+  background: var(--app-success-bg);
 }
 
 .pay-total strong.amount-positive {
-  color: #166534;
+  color: var(--app-success);
 }
 
 .attendance-heading,
@@ -223,7 +223,7 @@ h2, h3 {
 }
 
 .calendar-month {
-  color: #1d4ed8;
+  color: var(--app-brand-strong);
   font-size: 0.88rem;
   white-space: nowrap;
 }
@@ -237,10 +237,10 @@ h2, h3 {
   width: 30px;
   height: 30px;
   place-items: center;
-  border: 1px solid #dbeafe;
+  border: 1px solid var(--app-border);
   border-radius: 9px;
-  background: #f8fbff;
-  color: #1d4ed8;
+  background: #f8fafc;
+  color: var(--app-brand-strong);
   font: inherit;
   font-size: 1.2rem;
   font-weight: 700;
@@ -283,18 +283,18 @@ h2, h3 {
 }
 
 .calendar-day.today {
-  border-color: #93c5fd;
-  box-shadow: inset 0 0 0 1px #dbeafe;
+  border-color: #78aaa5;
+  box-shadow: inset 0 0 0 1px var(--app-brand-soft);
 }
 
 .calendar-day.present-day {
-  background: #dcfce7;
-  color: #166534;
+  background: var(--app-success-bg);
+  color: var(--app-success);
 }
 
 .calendar-day.absent-day {
-  background: #fee2e2;
-  color: #b91c1c;
+  background: var(--app-danger-bg);
+  color: var(--app-danger);
 }
 
 .calendar-date {
@@ -313,7 +313,7 @@ h2, h3 {
   flex-wrap: wrap;
   gap: 14px;
   margin-top: 14px;
-  color: #64748b;
+  color: var(--app-muted);
   font-size: 0.76rem;
 }
 
@@ -334,21 +334,21 @@ h2, h3 {
 }
 
 .legend-present {
-  background: #dcfce7;
-  color: #166534;
+  background: var(--app-success-bg);
+  color: var(--app-success);
 }
 
 .legend-absent {
-  background: #fee2e2;
-  color: #b91c1c;
+  background: var(--app-danger-bg);
+  color: var(--app-danger);
 }
 
 .user-avatar,
 .mini-avatar {
   object-fit: cover;
   border-radius: 50%;
-  border: 2px solid #dbeafe;
-  background: #e0f2fe;
+  border: 2px solid #d4e9e5;
+  background: var(--app-brand-soft);
 }
 
 .user-avatar {
@@ -361,7 +361,7 @@ h2, h3 {
   display: grid;
   place-items: center;
   font-weight: 700;
-  color: #1d4ed8;
+  color: var(--app-brand-strong);
 }
 
 .default-avatar {
@@ -394,7 +394,7 @@ h2, h3 {
   padding: 10px 12px;
   background: #f8fafc;
   border-radius: 12px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--app-border);
 }
 
 .user-meta {
@@ -405,12 +405,12 @@ h2, h3 {
 
 .user-meta span,
 .user-meta small {
-  color: #64748b;
+  color: var(--app-muted);
 }
 
 .status-pill {
-  background: #dcfce7;
-  color: #166534;
+  background: var(--app-success-bg);
+  color: var(--app-success);
   padding: 8px 10px;
   border-radius: 999px;
   font-size: 0.75rem;
@@ -448,13 +448,13 @@ h2, h3 {
   flex-direction: column;
   gap: 6px;
   padding: 12px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--app-border);
   border-radius: 12px;
   background: #f8fafc;
 }
 
 .transaction-total span {
-  color: #64748b;
+  color: var(--app-muted);
   font-size: 0.78rem;
 }
 
@@ -464,17 +464,17 @@ h2, h3 {
 }
 
 .salary-total strong {
-  color: #166534;
+  color: var(--app-success);
 }
 
 .advance-total strong {
-  color: #b91c1c;
+  color: var(--app-danger);
 }
 
 .user-transaction-table-scroll {
   max-height: 190px;
   overflow: auto;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--app-border);
   border-radius: 12px;
 }
 
@@ -516,7 +516,7 @@ h2, h3 {
 
 .user-transaction-table th {
   background: #f8fafc;
-  color: #64748b;
+  color: var(--app-muted);
   font-size: 0.72rem;
   font-weight: 700;
   white-space: nowrap;
@@ -540,13 +540,13 @@ h2, h3 {
 }
 
 .salary-type {
-  background: #dcfce7;
-  color: #166534;
+  background: var(--app-success-bg);
+  color: var(--app-success);
 }
 
 .advance-type {
-  background: #fee2e2;
-  color: #b91c1c;
+  background: var(--app-danger-bg);
+  color: var(--app-danger);
 }
 
 .user-transaction-table td:last-child {
@@ -619,13 +619,13 @@ h2, h3 {
 }
 
 .primary-button {
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  background: linear-gradient(135deg, var(--app-brand), var(--app-brand-strong));
   color: white;
 }
 
 .secondary-button {
-  background: #e2e8f0;
-  color: #0f172a;
+  background: #e9eef4;
+  color: var(--app-ink);
 }
 
 .entry-list {
@@ -659,4 +659,247 @@ h2, h3 {
 .entry-item small {
   display: block;
   margin-top: 3px;
+}
+
+:host {
+  background: var(--app-page-bg);
+  color: var(--app-ink);
+}
+
+.topbar,
+.status-card,
+.location-card,
+.face-card,
+.entries-card,
+.user-card,
+.pay-card {
+  border-color: var(--app-border);
+  box-shadow: 0 8px 24px rgba(23, 36, 59, 0.04);
+}
+
+.eyebrow,
+.user-summary-row p,
+.pay-item span,
+.transaction-total span,
+.user-transaction-table td,
+.user-transaction-table th,
+.transaction-description,
+.empty-state,
+.calendar-legend {
+  color: var(--app-muted);
+}
+
+h2,
+h3,
+.pay-item strong,
+.entry-item strong {
+  color: var(--app-ink);
+}
+
+.ghost-button,
+.link-button {
+  background: var(--app-brand-soft);
+  color: var(--app-brand-strong);
+}
+
+.alert-banner.success-message,
+.status-pill,
+.salary-type {
+  background: var(--app-success-bg);
+  color: var(--app-success);
+}
+
+.alert-banner.error-message {
+  background: var(--app-danger-bg);
+  color: var(--app-danger);
+}
+
+.pay-total.negative-total {
+  border-color: #ffd2d7;
+  background: var(--app-danger-bg);
+}
+
+.pay-total.negative-total strong,
+.amount-negative,
+.advance-total strong {
+  color: var(--app-danger);
+}
+
+.pay-total.positive-total {
+  border-color: #bce7cf;
+  background: var(--app-success-bg);
+}
+
+.pay-total strong.amount-positive,
+.amount-positive,
+.salary-total strong {
+  color: var(--app-success);
+}
+
+.calendar-nav {
+  border-color: var(--app-border);
+  background: #f8fafc;
+  color: var(--app-brand-strong);
+}
+
+.calendar-day.today {
+  border-color: #78aaa5;
+  box-shadow: inset 0 0 0 1px var(--app-brand-soft);
+}
+
+.calendar-day.present-day,
+.legend-present {
+  background: var(--app-success-bg);
+  color: var(--app-success);
+}
+
+.calendar-day.absent-day,
+.legend-absent {
+  background: var(--app-danger-bg);
+  color: var(--app-danger);
+}
+
+.pay-card-heading h3,
+.transaction-history-heading h3,
+.attendance-heading h3 {
+  font-size: 1.08rem;
+  letter-spacing: -0.02em;
+}
+
+.pay-card {
+  background:
+    radial-gradient(ellipse at 100% 0, rgba(24, 117, 109, 0.08), transparent 16rem),
+    var(--app-surface);
+}
+
+.pay-card-heading {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--app-border);
+}
+
+.pay-card-heading .status-pill {
+  padding: 6px 9px;
+}
+
+.pay-grid {
+  gap: 11px;
+}
+
+.pay-item {
+  border-color: #e4eaf0;
+  background: linear-gradient(145deg, #fff, #f8fafc);
+}
+
+.pay-item span,
+.transaction-total span {
+  font-size: 0.74rem;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.pay-item strong {
+  font-size: 1rem;
+  letter-spacing: -0.015em;
+}
+
+.pay-total {
+  border-color: #cfe5df;
+  background: linear-gradient(110deg, #eff8f5, #f8fbfc);
+}
+
+.transaction-history-card,
+.entries-card {
+  box-shadow: 0 10px 28px rgba(23, 36, 59, 0.055);
+}
+
+.transaction-history-heading,
+.attendance-heading {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--app-border);
+}
+
+.transaction-totals {
+  gap: 9px;
+}
+
+.transaction-total {
+  border-color: var(--app-border);
+  background: #f8fafc;
+}
+
+.user-transaction-table-scroll {
+  box-shadow: 0 3px 10px rgba(23, 36, 59, 0.025);
+}
+
+.user-transaction-table th {
+  background: #f3f6f9;
+  color: var(--app-muted);
+}
+
+.user-transaction-table tbody tr:hover {
+  background: #f6faf9;
+}
+
+.transaction-error {
+  border-color: #ffd2d7;
+  background: var(--app-danger-bg);
+  color: var(--app-danger);
+}
+
+.calendar-weekday {
+  color: var(--app-muted);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.calendar-day {
+  border-radius: 10px;
+  color: var(--app-ink);
+}
+
+.calendar-legend {
+  padding-top: 11px;
+  border-top: 1px solid var(--app-border);
+}
+
+.calendar-nav:hover:not(:disabled) {
+  border-color: #b7d9d2;
+  background: var(--app-brand-soft);
+}
+
+.user-avatar,
+.mini-avatar {
+  border-color: #d4e9e5;
+  background: var(--app-brand-soft);
+}
+
+.default-avatar,
+.default-mini-avatar {
+  color: var(--app-brand-strong);
+}
+
+.user-list-item {
+  border-color: var(--app-border);
+}
+
+.transaction-total,
+.pay-item,
+.user-list-item {
+  background: #f8fafc;
+}
+
+.user-transaction-table th {
+  background: #f8fafc;
+}
+
+.transaction-error {
+  border-color: #ffd2d7;
+  background: var(--app-danger-bg);
+  color: var(--app-danger);
+}
+
+.primary-button {
+  background: linear-gradient(135deg, var(--app-brand), var(--app-brand-strong));
 }

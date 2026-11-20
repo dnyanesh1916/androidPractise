@@ -1,4 +1,20 @@
 /* You can add global styles to this file, and also import other style files */
+:root {
+	--app-ink: #17243b;
+	--app-muted: #64748b;
+	--app-brand: #18756d;
+	--app-brand-strong: #125d57;
+	--app-brand-soft: #e8f5f2;
+	--app-page-bg: #f3f6fb;
+	--app-surface: #ffffff;
+	--app-border: #e1e8f0;
+	--app-success: #16794b;
+	--app-success-bg: #e9f7ef;
+	--app-danger: #b42332;
+	--app-danger-bg: #fff0f1;
+	--app-shadow: 0 16px 38px rgba(23, 36, 59, 0.08);
+}
+
 html,
 body {
 	width: 100%;
@@ -8,4 +24,459 @@ body {
 
 body {
 	overflow-x: hidden;
+	background: var(--app-page-bg);
+	color: var(--app-ink);
+	font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+	-webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+select {
+	font: inherit;
+}
+
+button,
+a {
+	-webkit-tap-highlight-color: transparent;
+}
+
+button,
+a,
+input,
+select {
+	transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible {
+	outline: 3px solid rgba(24, 117, 109, 0.24);
+	outline-offset: 2px;
+}
+
+::selection {
+	background: rgba(24, 117, 109, 0.18);
+	color: var(--app-ink);
+}
+
+@media (max-width: 760px) {
+	app-admin .admin-shell .account-directory-card .user-table {
+		min-width: 0;
+	}
+
+	app-admin .admin-shell .account-directory-card .user-table thead {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		clip-path: inset(50%);
+		white-space: nowrap;
+	}
+
+	app-admin .admin-shell .account-directory-card .user-table tbody {
+		display: grid;
+		gap: 12px;
+		padding: 10px;
+	}
+
+	app-admin .admin-shell .account-directory-card .user-table tbody tr {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 0 14px;
+		padding: 10px 12px;
+		border: 1px solid var(--app-border);
+		border-radius: 13px;
+		background: #fff;
+		box-shadow: 0 4px 12px rgba(23, 36, 59, 0.035);
+	}
+
+	app-admin .admin-shell .account-directory-card .user-table tbody td {
+		display: grid;
+		min-width: 0;
+		grid-template-columns: minmax(75px, 0.75fr) minmax(0, 1.25fr);
+		align-items: center;
+		gap: 8px;
+		padding: 9px 0;
+		border-bottom: 1px solid #edf1f5;
+		overflow-wrap: anywhere;
+		white-space: normal;
+	}
+
+	app-admin .admin-shell .account-directory-card .user-table tbody td::before,
+	app-admin .admin-shell .account-directory-card .user-table tfoot td::before {
+		color: var(--app-muted);
+		font-size: 0.68rem;
+		font-weight: 750;
+	}
+
+	app-admin .admin-shell .account-directory-card .user-table tbody td:first-child {
+		display: block;
+		grid-column: 1 / -1;
+		padding: 4px 0 10px;
+		border-bottom-color: var(--app-border);
+	}
+
+	app-admin .admin-shell .account-directory-card .user-table tbody td:nth-of-type(2)::before { content: "User ID"; }
+	app-admin .admin-shell .account-directory-card .user-table tbody td:nth-of-type(3)::before { content: "Work location"; }
+	app-admin .admin-shell .account-directory-card .user-table tbody td:nth-of-type(4)::before { content: "Daily salary"; }
+	app-admin .admin-shell .account-directory-card .user-table tbody td:nth-of-type(5)::before { content: "Working days"; }
+	app-admin .admin-shell .account-directory-card .user-table tbody td:nth-of-type(6)::before { content: "Total earned"; }
+	app-admin .admin-shell .account-directory-card .user-table tbody td:nth-of-type(7)::before { content: "Monthly paid"; }
+	app-admin .admin-shell .account-directory-card .user-table tbody td:nth-of-type(8)::before { content: "Monthly advance"; }
+	app-admin .admin-shell .account-directory-card .user-table tbody td:nth-of-type(9)::before { content: "Balance this month"; }
+	app-admin .admin-shell .account-directory-card .user-table tbody td:nth-of-type(10)::before { content: "Access"; }
+
+	app-admin .admin-shell .account-directory-card .user-table tbody td:nth-of-type(4) {
+		grid-template-columns: 1fr;
+	}
+
+	app-admin .admin-shell .account-directory-card .user-table .approval-salary {
+		width: 100%;
+		max-width: 180px;
+	}
+
+	app-admin .admin-shell .account-directory-card .user-table tbody td.actions-cell {
+		grid-column: 1 / -1;
+		justify-content: flex-start;
+		border-bottom: 0;
+		text-align: left !important;
+	}
+
+	app-admin .admin-shell .account-directory-card .user-table tfoot {
+		display: block;
+		padding: 0 10px 10px;
+	}
+
+	app-admin .admin-shell .account-directory-card .user-table tfoot tr {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 0 14px;
+		padding: 10px 12px;
+		border: 1px solid #d5e2e4;
+		border-radius: 13px;
+		background: #f1f6f7;
+	}
+
+	app-admin .admin-shell .account-directory-card .user-table tfoot th {
+		grid-column: 1 / -1;
+		padding: 6px 0 10px;
+		border: 0;
+		background: transparent;
+		text-align: left;
+	}
+
+	app-admin .admin-shell .account-directory-card .user-table tfoot td {
+		display: flex;
+		min-width: 0;
+		flex-direction: column;
+		gap: 5px;
+		padding: 9px 0;
+		border-bottom: 1px solid #dce7e8;
+		font-size: 0.78rem;
+		overflow-wrap: anywhere;
+	}
+
+	app-admin .admin-shell .account-directory-card .user-table tfoot td::before {
+		font-size: 0.67rem;
+	}
+
+	app-admin .admin-shell .account-directory-card .user-table tfoot td:nth-of-type(1)::before { content: "User ID"; }
+	app-admin .admin-shell .account-directory-card .user-table tfoot td:nth-of-type(2)::before { content: "Work location"; }
+	app-admin .admin-shell .account-directory-card .user-table tfoot td:nth-of-type(3)::before { content: "Daily salary"; }
+	app-admin .admin-shell .account-directory-card .user-table tfoot td:nth-of-type(4)::before { content: "Working days"; }
+	app-admin .admin-shell .account-directory-card .user-table tfoot td:nth-of-type(5)::before { content: "Total earned"; }
+	app-admin .admin-shell .account-directory-card .user-table tfoot td:nth-of-type(6)::before { content: "Monthly paid"; }
+	app-admin .admin-shell .account-directory-card .user-table tfoot td:nth-of-type(7)::before { content: "Monthly advance"; }
+	app-admin .admin-shell .account-directory-card .user-table tfoot td:nth-of-type(8)::before { content: "Balance this month"; }
+	app-admin .admin-shell .account-directory-card .user-table tfoot td:nth-of-type(9)::before { content: "Action"; }
+}
+
+app-admin .admin-shell .admin-details-modal {
+	width: min(820px, calc(100vw - 48px));
+	padding: clamp(20px, 3vw, 32px);
+	background: radial-gradient(ellipse at 100% 0, rgba(24, 117, 109, 0.08), transparent 22rem), #fff;
+}
+
+app-admin .admin-shell .admin-details-header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 18px;
+	padding-bottom: 20px;
+	border-bottom: 1px solid var(--app-border);
+}
+
+app-admin .admin-shell .admin-details-heading,
+app-admin .admin-shell .admin-info-heading {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+app-admin .admin-shell .admin-details-mark,
+app-admin .admin-shell .admin-info-icon {
+	display: grid;
+	flex: 0 0 auto;
+	place-items: center;
+	border-radius: 12px;
+	background: var(--app-brand-soft);
+	color: var(--app-brand-strong);
+}
+
+app-admin .admin-shell .admin-details-mark {
+	width: 48px;
+	height: 48px;
+	border-radius: 15px;
+}
+
+app-admin .admin-shell .admin-details-mark svg {
+	width: 24px;
+	height: 24px;
+}
+
+app-admin .admin-shell .admin-details-mark svg,
+app-admin .admin-shell .admin-info-icon svg,
+app-admin .admin-shell .admin-details-note svg {
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 1.7;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+app-admin .admin-shell .admin-details-heading .eyebrow,
+app-admin .admin-shell .admin-info-heading .eyebrow {
+	margin-bottom: 4px;
+	color: var(--app-brand-strong);
+}
+
+app-admin .admin-shell .admin-details-heading h2 {
+	margin: 0;
+	font-size: 1.4rem;
+	letter-spacing: -0.035em;
+}
+
+app-admin .admin-shell .admin-details-subtitle {
+	margin: 5px 0 0;
+	color: var(--app-muted);
+	font-size: 0.84rem;
+	line-height: 1.5;
+}
+
+app-admin .admin-shell .admin-profile-card {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	margin: 18px 0;
+	padding: 15px;
+	border: 1px solid #d5e9e5;
+	border-radius: 15px;
+	background: linear-gradient(110deg, #f0f8f6, #f8fbfc);
+}
+
+app-admin .admin-shell .admin-profile-avatar {
+	display: grid;
+	width: 50px;
+	height: 50px;
+	flex: 0 0 50px;
+	place-items: center;
+	border: 3px solid #fff;
+	border-radius: 50%;
+	background: linear-gradient(145deg, var(--app-brand), #27968b);
+	box-shadow: 0 4px 12px rgba(24, 117, 109, 0.18);
+	color: #fff;
+	font-size: 1.2rem;
+	font-weight: 800;
+}
+
+app-admin .admin-shell .admin-profile-copy {
+	display: flex;
+	min-width: 0;
+	flex: 1;
+	flex-direction: column;
+	gap: 3px;
+}
+
+app-admin .admin-shell .admin-profile-label,
+app-admin .admin-shell .admin-profile-username {
+	color: var(--app-muted);
+	font-size: 0.76rem;
+}
+
+app-admin .admin-shell .admin-profile-copy strong {
+	overflow: hidden;
+	font-size: 1rem;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+app-admin .admin-shell .admin-role-pill {
+	display: inline-flex;
+	min-height: 28px;
+	align-items: center;
+	padding: 0 11px;
+	border: 1px solid #cce5df;
+	border-radius: 99px;
+	background: #fff;
+	color: var(--app-brand-strong);
+	font-size: 0.72rem;
+	font-weight: 800;
+}
+
+app-admin .admin-shell .admin-details-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 14px;
+}
+
+app-admin .admin-shell .admin-details-section {
+	margin: 0;
+	padding: 16px;
+	border-color: var(--app-border);
+	border-radius: 15px;
+	background: #fff;
+}
+
+app-admin .admin-shell .admin-info-heading {
+	margin-bottom: 12px;
+}
+
+app-admin .admin-shell .admin-info-icon {
+	width: 38px;
+	height: 38px;
+}
+
+app-admin .admin-shell .admin-info-icon svg {
+	width: 19px;
+	height: 19px;
+}
+
+app-admin .admin-shell .admin-info-heading h3 {
+	margin: 0;
+	font-size: 0.94rem;
+}
+
+app-admin .admin-shell .admin-details-list {
+	gap: 0;
+}
+
+app-admin .admin-shell .admin-details-list > div {
+	grid-template-columns: minmax(78px, 0.65fr) minmax(0, 1.35fr);
+	gap: 10px;
+	padding: 10px 0;
+	border-top: 1px solid #edf1f5;
+}
+
+app-admin .admin-shell .admin-details-list dt {
+	font-size: 0.76rem;
+}
+
+app-admin .admin-shell .admin-details-list dd {
+	font-size: 0.8rem;
+	line-height: 1.45;
+}
+
+app-admin .admin-shell .sample-label {
+	margin: 4px 0 0;
+	padding: 3px 7px;
+	border-radius: 99px;
+	background: #f0f3f7;
+	font-size: 0.62rem;
+}
+
+app-admin .admin-shell .admin-details-footer {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 16px;
+	margin-top: 17px;
+	padding-top: 14px;
+	border-top: 1px solid var(--app-border);
+}
+
+app-admin .admin-shell .admin-details-note {
+	display: flex;
+	align-items: flex-start;
+	gap: 7px;
+	max-width: 480px;
+}
+
+app-admin .admin-shell .admin-details-note svg {
+	width: 16px;
+	height: 16px;
+	flex: 0 0 16px;
+	margin-top: 1px;
+	color: var(--app-brand);
+}
+
+app-admin .admin-shell .admin-details-footer strong {
+	text-align: right;
+}
+
+@media (max-width: 560px) {
+	app-admin .admin-shell .admin-details-modal {
+		width: calc(100vw - 24px);
+		padding: 17px;
+	}
+
+	app-admin .admin-shell .admin-details-header {
+		padding-bottom: 15px;
+	}
+
+	app-admin .admin-shell .admin-details-heading {
+		align-items: flex-start;
+		gap: 10px;
+	}
+
+	app-admin .admin-shell .admin-details-mark {
+		width: 40px;
+		height: 40px;
+	}
+
+	app-admin .admin-shell .admin-details-mark svg {
+		width: 20px;
+		height: 20px;
+	}
+
+	app-admin .admin-shell .admin-details-heading h2 {
+		font-size: 1.2rem;
+	}
+
+	app-admin .admin-shell .admin-details-subtitle {
+		font-size: 0.78rem;
+	}
+
+	app-admin .admin-shell .admin-profile-card {
+		gap: 10px;
+		padding: 12px;
+	}
+
+	app-admin .admin-shell .admin-profile-avatar {
+		width: 44px;
+		height: 44px;
+		flex-basis: 44px;
+	}
+
+	app-admin .admin-shell .admin-role-pill {
+		min-height: 25px;
+		padding: 0 8px;
+		font-size: 0.66rem;
+	}
+
+	app-admin .admin-shell .admin-details-grid {
+		grid-template-columns: 1fr;
+		gap: 10px;
+	}
+
+	app-admin .admin-shell .admin-details-footer {
+		flex-direction: column;
+		gap: 8px;
+	}
+
+	app-admin .admin-shell .admin-details-footer strong {
+		text-align: left;
+	}
 }

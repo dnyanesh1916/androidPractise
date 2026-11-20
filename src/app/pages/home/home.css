@@ -2,7 +2,7 @@
   display: block;
   min-height: var(--app-page-height, calc(100dvh - 85px));
   box-sizing: border-box;
-  background: linear-gradient(135deg, #eff6ff, #f8fafc 60%, #e2e8f0);
+  background: var(--app-page-bg);
   padding: 24px 16px;
 }
 
@@ -30,7 +30,7 @@
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  color: #0f172a;
+  color: var(--app-ink);
   font-size: 1.2rem;
   font-weight: 800;
   text-decoration: none;
@@ -42,14 +42,14 @@
   height: 34px;
   place-items: center;
   border-radius: 12px;
-  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  background: linear-gradient(135deg, var(--app-brand), #27968b);
   color: white;
-  box-shadow: 0 10px 18px rgba(37, 99, 235, 0.25);
+  box-shadow: 0 10px 18px rgba(24, 117, 109, 0.24);
 }
 
 .eyebrow {
   margin: 32px 0 0;
-  color: #2563eb;
+  color: var(--app-brand);
   font-size: 0.75rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -57,14 +57,14 @@
 
 h1 {
   margin: 12px 0 10px;
-  color: #0f172a;
+  color: var(--app-ink);
   font-size: clamp(2rem, 8vw, 2.5rem);
   line-height: 1.15;
 }
 
 .subtitle {
   margin: 0 0 26px;
-  color: #475569;
+  color: var(--app-muted);
   line-height: 1.6;
 }
 
@@ -86,14 +86,14 @@ h1 {
 }
 
 .primary-action {
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  background: linear-gradient(135deg, var(--app-brand), var(--app-brand-strong));
   color: white;
 }
 
 .secondary-action {
-  border: 1px solid #dfe7f5;
-  background: #f8fbff;
-  color: #1d4ed8;
+  border: 1px solid var(--app-border);
+  background: #f8fafc;
+  color: var(--app-brand-strong);
 }
 
 @media (max-width: 480px) {
