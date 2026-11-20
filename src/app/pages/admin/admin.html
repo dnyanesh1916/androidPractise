@@ -318,6 +318,34 @@
         </div>
       </div>
 
+      <section *ngIf="detailUser.source !== 'LEGACY'" class="transaction-panel">
+        <div class="transaction-heading">
+          <div>
+            <h3>Issue password recovery code</h3>
+            <p>Generate a one-time code the user can exchange for a new password. Issuing another code invalidates this one.</p>
+          </div>
+        </div>
+        <div
+          *ngIf="recoveryCodeMessage"
+          class="transaction-message"
+          [class.transaction-message-error]="isRecoveryCodeError"
+          [class.transaction-message-success]="!isRecoveryCodeError"
+          role="status"
+          aria-live="polite"
+        >{{ recoveryCodeMessage }}</div>
+        <div *ngIf="issuedRecoveryCode" class="recovery-code-value" aria-label="One-time recovery code">
+          {{ issuedRecoveryCode }}
+        </div>
+        <div class="transaction-entry">
+          <button
+            type="button"
+            class="transaction-credit"
+            [disabled]="isIssuingRecoveryCodeFor === detailUser.id"
+            (click)="issueRecoveryCode(detailUser)"
+          >{{ isIssuingRecoveryCodeFor === detailUser.id ? 'Generating...' : 'Generate recovery code' }}</button>
+        </div>
+      </section>
+
       <nav class="user-detail-tabs" aria-label="User detail sections">
         <button type="button" [class.selected]="activeDetailTab === 'compensation'" (click)="selectDetailTab('compensation')">
           Salary &amp; advances

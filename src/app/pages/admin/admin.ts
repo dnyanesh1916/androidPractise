@@ -91,6 +91,10 @@ export class Admin implements OnInit, OnDestroy {
   isTransactionError = false;
   transactionAmount: number | null = null;
   transactionDescription = '';
+  issuedRecoveryCode = '';
+  recoveryCodeMessage = '';
+  isRecoveryCodeError = false;
+  isIssuingRecoveryCodeFor: number | null = null;
   dailySalaryDrafts: Record<number, number | null> = {};
   selectedMonth = this.currentMonthValue();
   selectedLocationName: string | null = null;
@@ -256,6 +260,8 @@ export class Admin implements OnInit, OnDestroy {
     this.transactionDescription = '';
     this.transactionMessage = '';
     this.attendanceMessage = '';
+    this.issuedRecoveryCode = '';
+    this.recoveryCodeMessage = '';
     if (account.source === 'LEGACY') {
       return;
     }
@@ -286,6 +292,31 @@ export class Admin implements OnInit, OnDestroy {
     this.transactionDescription = '';
     this.transactionMessage = '';
     this.attendanceMessage = '';
+    this.issuedRecoveryCode = '';
+    this.recoveryCodeMessage = '';
+  }
+
+  issueRecoveryCode(account: AdminUser): void {
+    if (account.source === 'LEGACY' || this.isIssuingRecoveryCodeFor === account.id) {
+      return;
+    }
+    this.issuedRecoveryCode = '';
+    this.recoveryCodeMessage = '';
+    this.isIssuingRecoveryCodeFor = account.id;
+    this.attendanceService.issueUserRecoveryCode(account.id).subscribe({
+      next: (response) => {
+        this.isIssuingRecoveryCodeFor = null;
+        this.issuedRecoveryCode = response.recoveryCode;
+        this.showRecoveryCodeMessage('Share this code with the user through a secure channel. It expires in 15 minutes.', false);
+        this.loadActivity();
+      },
+      error: (error) => {
+        this.isIssuingRecoveryCodeFor = null;
+        this.showRecoveryCodeMessage(
+          this.getRequestErrorMessage(error, 'Could not issue a recovery code.'), true
+        );
+      }
+    });
   }
 
   selectDetailTab(tab: UserDetailTab): void {
@@ -627,6 +658,12 @@ export class Admin implements OnInit, OnDestroy {
   private showTransactionMessage(message: string, isError: boolean): void {
     this.transactionMessage = message;
     this.isTransactionError = isError;
+    this.cdr.detectChanges();
+  }
+
+  private showRecoveryCodeMessage(message: string, isError: boolean): void {
+    this.recoveryCodeMessage = message;
+    this.isRecoveryCodeError = isError;
     this.cdr.detectChanges();
   }
 

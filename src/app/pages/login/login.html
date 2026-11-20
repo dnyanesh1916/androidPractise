@@ -19,14 +19,20 @@
         <input type="password" name="password" [(ngModel)]="form.password" placeholder="••••••••" required />
       </label>
 
-      <div *ngIf="message" [class.success-message]="isSuccess" [class.error-message]="!isSuccess">
-        {{ message }}
-      </div>
-
       <button type="submit" [disabled]="isSubmitting">
         {{ isSubmitting ? 'Signing in...' : 'Login' }}
       </button>
     </form>
+
+    <div class="switch-link">
+      <a routerLink="/forgot-password">Forgot password?</a>
+    </div>
+
+    <p class="subtitle">If you cannot sign in, ask your administrator for a one-time recovery code.</p>
+
+    <div *ngIf="message" [class.success-message]="isSuccess" [class.error-message]="!isSuccess" role="status" aria-live="polite">
+      {{ message }}
+    </div>
 
     <div class="switch-link">
       Don’t have an account?

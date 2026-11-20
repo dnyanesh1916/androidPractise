@@ -345,7 +345,21 @@ p {
   color: #166534;
 }
 
+.recovery-code-value {
+  margin: 12px 0;
+  padding: 12px;
+  border: 1px dashed #7c9caa;
+  border-radius: 8px;
+  background: #f5fafc;
+  color: #183541;
+  font: 700 1.1rem/1.5 monospace;
+  letter-spacing: 0.12em;
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+
 .transaction-entry {
+  align-items: flex-end;
   gap: 10px;
   margin: 16px 0;
 }

@@ -21,6 +21,10 @@ export interface AttendanceLocationInfo {
   active: boolean;
 }
 
+export interface PasswordRecoveryCode {
+  recoveryCode: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -90,6 +94,12 @@ export class AttendanceService {
 
   updateUserDailySalary(userId: number, dailySalary: number): Observable<any> {
     return this.http.patch(`${API_BASE_URL}/api/admin/users/${userId}/salary`, { dailySalary }, this.sessionOptions);
+  }
+
+  issueUserRecoveryCode(userId: number): Observable<PasswordRecoveryCode> {
+    return this.http.post<PasswordRecoveryCode>(
+      `${API_BASE_URL}/api/admin/users/${userId}/recovery-code`, {}, this.sessionOptions
+    );
   }
 
   getUserTransactions(userId: number): Observable<any> {

@@ -23,6 +23,19 @@
       </div>
 
       <div class="form-field">
+        <label for="dateOfBirth">Date of birth</label>
+        <input
+          type="date"
+          id="dateOfBirth"
+          name="dateOfBirth"
+          [max]="latestDateOfBirth"
+          required
+          [(ngModel)]="form.dateOfBirth"
+        >
+        <!-- <small>This will be used to verify your identity if you need to reset your password.</small> -->
+      </div>
+
+      <div class="form-field">
         <label for="password">Password</label>
         <input
           type="password"

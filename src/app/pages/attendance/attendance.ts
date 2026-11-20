@@ -17,8 +17,6 @@ export class AttendancePage implements OnInit, OnDestroy {
   user: any = null;
   attendanceLocations: AttendanceLocationInfo[] = [];
   selectedLocationId: number | null = null;
-  locationText = 'Waiting for location...';
-  needsLocationPermission = false;
   attendanceStatus = 'Not yet marked';
   faceData = '';
   latitude: number | null = null;
@@ -107,7 +105,6 @@ export class AttendancePage implements OnInit, OnDestroy {
 
   requestLocation(): void {
     if (!navigator.geolocation) {
-      this.locationText = 'Geolocation not supported by this browser';
       this.showAlert('Geolocation not supported by this browser', false);
       return;
     }
@@ -116,13 +113,11 @@ export class AttendancePage implements OnInit, OnDestroy {
       (position) => {
         this.latitude = position.coords.latitude;
         this.longitude = position.coords.longitude;
-        this.needsLocationPermission = false;
-        this.locationText = `Lat: ${position.coords.latitude.toFixed(4)} | Lng: ${position.coords.longitude.toFixed(4)}`;
         this.showAlert('Location access granted successfully.', true);
       },
       () => {
-        this.needsLocationPermission = true;
-        this.locationText = 'Location permission denied';
+        this.latitude = null;
+        this.longitude = null;
         this.showAlert('Location permission denied. Please allow location access.', false);
       }
     );
@@ -225,8 +220,6 @@ export class AttendancePage implements OnInit, OnDestroy {
     }
 
     if (this.latitude === null || this.longitude === null) {
-      this.needsLocationPermission = true;
-      this.locationText = 'Please allow location access before marking attendance.';
       this.showAlert('Please allow location access before marking attendance.', false);
       return;
     }
@@ -260,7 +253,6 @@ export class AttendancePage implements OnInit, OnDestroy {
         this.faceData = '';
         this.latitude = null;
         this.longitude = null;
-        this.locationText = 'Allow location access before your next attendance mark.';
         this.showAlert(backendMessage, true);
         this.loadTodayAttendance();
       },

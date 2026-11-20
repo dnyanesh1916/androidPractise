@@ -24,6 +24,15 @@ export class AuthService {
     return this.http.post(`${API_BASE_URL}/api/auth/login`, payload, { withCredentials: true });
   }
 
+  resetPasswordWithCode(payload: {
+    username: string;
+    recoveryCode: string;
+    password: string;
+    confirmPassword: string;
+  }): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${API_BASE_URL}/api/auth/password-reset`, payload);
+  }
+
   saveUser(user: any): void {
     if (typeof window === 'undefined' || !('localStorage' in window)) {
       return;

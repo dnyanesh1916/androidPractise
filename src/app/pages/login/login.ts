@@ -15,7 +15,6 @@ export class Login {
     username: '',
     password: ''
   };
-
   isSubmitting = false;
   message = '';
   isSuccess = false;
@@ -95,4 +94,5 @@ export class Login {
       }
     });
   }
+
 }

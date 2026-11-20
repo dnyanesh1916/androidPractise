@@ -15,9 +15,11 @@ export class Register {
 
   form = {
     fullName: '',
+    dateOfBirth: '',
     password: '',
     confirmPassword: ''
   };
+  readonly latestDateOfBirth = this.localDateValue(new Date());
 
   isSubmitting = false;
   isCameraOpen = false;
@@ -124,8 +126,13 @@ export class Register {
 
     this.showAlert('', false);
 
-    if (!this.form.fullName || !this.form.password || !this.form.confirmPassword) {
+    if (!this.form.fullName || !this.form.dateOfBirth || !this.form.password || !this.form.confirmPassword) {
       this.showAlert('Please fill in all fields.', false);
+      return;
+    }
+
+    if (this.form.dateOfBirth >= this.latestDateOfBirth) {
+      this.showAlert('Date of birth must be before today.', false);
       return;
     }
 
@@ -153,6 +160,7 @@ export class Register {
 
     const payload = {
       fullName: this.form.fullName.trim(),
+      dateOfBirth: this.form.dateOfBirth,
       password: this.form.password,
       confirmPassword: this.form.confirmPassword,
       profileImage: this.profileImage
@@ -170,6 +178,7 @@ export class Register {
         if (isSuccess) {
           this.form = {
             fullName: '',
+            dateOfBirth: '',
             password: '',
             confirmPassword: ''
           };
@@ -191,5 +200,12 @@ export class Register {
         this.showAlert(error?.error?.message || error?.message || 'Registration failed. Please try again.', false);
       }
     });
+  }
+
+  private localDateValue(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 }

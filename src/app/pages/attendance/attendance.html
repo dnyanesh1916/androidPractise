@@ -26,9 +26,6 @@
         </option>
       </select>
     </label>
-    <p *ngIf="needsLocationPermission" class="location-permission-alert" role="alert">
-      Please allow location access before marking attendance.
-    </p>
     <p *ngIf="selectedLocation" class="selected-location-details">
       <strong>{{ selectedLocation.name }}</strong>
       <span>{{ selectedLocation.address || 'No address provided' }}</span>
@@ -36,7 +33,6 @@
       <span>Allowed check-in radius: {{ selectedLocation.radiusMeters }} m</span>
     </p>
     <p *ngIf="attendanceLocations.length === 0">No active attendance locations are available. Contact your administrator.</p>
-    <p>{{ locationText }}</p>
   </section>
 
   <div class="photo-box">
